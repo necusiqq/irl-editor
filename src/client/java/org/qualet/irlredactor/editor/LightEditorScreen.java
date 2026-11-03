@@ -97,7 +97,7 @@ public class LightEditorScreen extends Screen
      *  screen) — used by the input-capture mixins to gate when to swallow input. */
     public static boolean isOverlayActive()
     {
-        return editorVisible || Minecraft.getInstance().screen instanceof LightEditorScreen;
+        return editorVisible || Minecraft.getInstance().gui.screen() instanceof LightEditorScreen;
     }
 
     /** Toggles the detached overlay; saves the scene when hiding. */
