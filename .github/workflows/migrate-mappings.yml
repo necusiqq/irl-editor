@@ -24,6 +24,7 @@ jobs:
           distribution: temurin
           java-version: '21'
       - uses: gradle/actions/setup-gradle@v4
+      # Core sources were migrated to Mojang names; its build now uses official mappings.
       - name: Publish irl-core to Maven Local
         working-directory: irl-core
         run: bash ./gradlew publishToMavenLocal
