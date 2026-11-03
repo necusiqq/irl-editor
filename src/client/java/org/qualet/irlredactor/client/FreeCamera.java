@@ -8,11 +8,11 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
-import org.lwjgl.glfw.GLFW;
+
 
 import org.qualet.irlredactor.editor.GuideOverlay;
 import org.qualet.irlredactor.imgui.ImGuiInput;
@@ -202,7 +202,7 @@ public final class FreeCamera
         {
             return;
         }
-        long handle = mc.getWindow().handle();
+        
 
         long now = System.nanoTime();
         double dt = (now - lastNanos) / 1_000_000_000.0;
@@ -301,24 +301,19 @@ public final class FreeCamera
      */
     private static void updateLook(Minecraft mc, LocalPlayer player, long handle)
     {
-        boolean lmb = GLFW.glfwGetMouseButton(handle, GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
+        var mouse = mc.mouseHandler;
+        boolean lmb = mouse.isLeftPressed();
 
         if (!lookActive)
         {
-            // Start only when the press lands on the viewport, not on a panel widget.
             if (lmb && !ImGuiInput.wantsMouse() && !GuideOverlay.isHandleActive())
             {
                 lookActive = true;
-                double[] cx = new double[1];
-                double[] cy = new double[1];
-                GLFW.glfwGetCursorPos(handle, cx, cy);
-                savedCursorX = cx[0];
-                savedCursorY = cy[0];
-                GLFW.glfwSetInputMode(handle, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_DISABLED);
-                // Re-read the baseline in the grabbed space so the first frame has no jump.
-                GLFW.glfwGetCursorPos(handle, cx, cy);
-                lookPrevX = cx[0];
-                lookPrevY = cy[0];
+                savedCursorX = mouse.xpos();
+                savedCursorY = mouse.ypos();
+                mouse.grabMouse();
+                lookPrevX = mouse.xpos();
+                lookPrevY = mouse.ypos();
             }
             return;
         }
@@ -329,13 +324,12 @@ public final class FreeCamera
             return;
         }
 
-        double[] cx = new double[1];
-        double[] cy = new double[1];
-        GLFW.glfwGetCursorPos(handle, cx, cy);
-        double dx = cx[0] - lookPrevX;
-        double dy = cy[0] - lookPrevY;
-        lookPrevX = cx[0];
-        lookPrevY = cy[0];
+        double cx = mouse.xpos();
+        double cy = mouse.ypos();
+        double dx = cx - lookPrevX;
+        double dy = cy - lookPrevY;
+        lookPrevX = cx;
+        lookPrevY = cy;
 
         if (dx != 0.0 || dy != 0.0)
         {
@@ -346,7 +340,7 @@ public final class FreeCamera
         }
     }
 
-    /** Release the look grab, restoring the free cursor at the saved position. */
+    /** Release relative mouse mode and return cursor control to the editor. */
     private static void endLook(Minecraft mc)
     {
         if (!lookActive)
@@ -354,9 +348,7 @@ public final class FreeCamera
             return;
         }
         lookActive = false;
-        long handle = mc.getWindow().handle();
-        GLFW.glfwSetInputMode(handle, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_NORMAL);
-        GLFW.glfwSetCursorPos(handle, savedCursorX, savedCursorY);
+        mc.mouseHandler.releaseMouse();
     }
 
     /**
@@ -366,18 +358,7 @@ public final class FreeCamera
      */
     public static boolean isKeyDown(long handle, KeyMapping bind)
     {
-        InputConstants.Key key = KeyMappingHelper.getBoundKeyOf(bind);
-        int code = key.getValue();
-        switch (key.getType())
-        {
-            case KEYSYM:
-                return code != GLFW.GLFW_KEY_UNKNOWN
-                    && GLFW.glfwGetKey(handle, code) == GLFW.GLFW_PRESS;
-            case MOUSE:
-                return GLFW.glfwGetMouseButton(handle, code) == GLFW.GLFW_PRESS;
-            default: // SCANCODE — no reliable raw poll.
-                return false;
-        }
+        return bind != null && bind.isDown();
     }
 
     /**
@@ -408,7 +389,7 @@ public final class FreeCamera
      * {@code IRLRedactorClient}): "Free Camera" + "Speed x.x", centred just above
      * the hotbar. Draws nothing while inactive.
      */
-    public static void renderHud(GuiGraphics ctx)
+    public static void renderHud(GuiGraphicsExtractor ctx)
     {
         if (!active)
         {
