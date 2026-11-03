@@ -68,7 +68,7 @@ public final class RedactorPatcherHost implements PatcherHost
     @Override
     public void openFolder(Path dir)
     {
-        Util.getPlatform().openUri(dir.toUri());
+        java.awt.Desktop.getDesktop().open(dir.toFile());
     }
 
     @Override
