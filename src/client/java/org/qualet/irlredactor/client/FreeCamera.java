@@ -3,7 +3,7 @@ package org.qualet.irlredactor.client;
 import com.mojang.blaze3d.platform.InputConstants;
 import java.util.Locale;
 
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.Camera;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -366,7 +366,7 @@ public final class FreeCamera
      */
     public static boolean isKeyDown(long handle, KeyMapping bind)
     {
-        InputConstants.Key key = KeyBindingHelper.getBoundKeyOf(bind);
+        InputConstants.Key key = KeyMappingHelper.getBoundKeyOf(bind);
         int code = key.getValue();
         switch (key.getType())
         {
