@@ -8,8 +8,9 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.SubmitNodeCollection;
-import net.minecraft.client.renderer.UvMapping;
+import net.minecraft.client.renderer.SubmitNodeStorage;
+import net.minecraft.client.renderer.texture.UvMapping;
+import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.rendertype.RenderType;
@@ -289,7 +290,7 @@ public final class OccluderGeometryCapturer
      * are not part of an occluder silhouette). Mirrors {@code
      * OrderedRenderCommandQueueImpl}'s method surface.
      */
-    private static final class CaptureQueue extends SubmitNodeCollection
+    private static final class CaptureQueue extends SubmitNodeStorage
     {
         private final Capture capture;
 
