@@ -739,7 +739,7 @@ public class LightEditorPanel
         {
             java.nio.file.Path d = CookieArray.dir();
             java.nio.file.Files.createDirectories(d);
-            net.minecraft.util.Util.getPlatform().openFile(d.toFile());
+            java.awt.Desktop.getDesktop().open(d.toFile());
         }
         catch (Exception ignored)
         {
