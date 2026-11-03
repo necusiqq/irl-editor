@@ -11,29 +11,16 @@ import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.OrderedSubmitNodeCollector;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.block.BlockRenderDispatcher;
-import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.block.MovingBlockRenderState;
-import net.minecraft.client.resources.model.geometry.BakedQuad;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
-import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
-import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
-import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.entity.state.CameraRenderState;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.block.RenderShape;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 
@@ -159,49 +146,6 @@ public final class OccluderGeometryCapturer
             // failure in a CrashReport + CrashException, so skip this entity on
             // later bakes instead of rebuilding that report every frame.
             failedEntities.add(entity.getId());
-            return EMPTY;
-        }
-    }
-
-    /**
-     * Capture one cutout block as world-space POSITION+UV triangles (5 floats per
-     * vertex) through MC's real {@link BlockRenderDispatcher#renderBatched} tessellation
-     * (neighbour-culled, correct atlas UVs) — replacing the earlier hand-rolled
-     * {@code BakedQuad} extraction. {@link ShadowRenderer} draws these with the
-     * atlas-sampling, alpha-discarding cutout program. Empty array on failure.
-     */
-    public static float[] captureCutoutBlockTris(BlockAndTintGetter world, BlockRenderDispatcher brm,
-                                                 BlockPos pos, BlockState state, RandomSource random)
-    {
-        if (world == null || brm == null || state == null)
-        {
-            return EMPTY;
-        }
-        try
-        {
-            BlockStateModel model = brm.getBlockModel(state);
-            if (model == null)
-            {
-                return EMPTY;
-            }
-            random.setSeed(state.getSeed(pos));
-            List<BlockModelPart> parts = model.collectParts(random);
-            if (parts == null || parts.isEmpty())
-            {
-                return EMPTY;
-            }
-
-            PoseStack ms = new PoseStack();
-            // Pre-translate to the absolute block origin: BlockModelRenderer only
-            // applies the block's model offset, never its position.
-            ms.translate(pos.getX(), pos.getY(), pos.getZ());
-
-            CAPTURE.reset();
-            brm.renderBatched(state, pos, world, ms, CAPTURE, true, parts);
-            return CAPTURE.toTris(true);
-        }
-        catch (Throwable t)
-        {
             return EMPTY;
         }
     }
