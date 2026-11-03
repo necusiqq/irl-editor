@@ -115,7 +115,7 @@ public final class GuideOverlay
     {
         Minecraft mc = Minecraft.getInstance();
         handleActive = false;
-        Camera cam = mc.gameRenderer == null ? null : mc.gameRenderer.getMainCamera();
+        Camera cam = mc.gameRenderer == null ? null : mc.gameRenderer.mainCamera();
         if (cam == null || mc.level == null || mc.getWindow().getHeight() == 0)
         {
             drag = NONE;
