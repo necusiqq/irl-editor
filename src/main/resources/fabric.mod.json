@@ -1,37 +1,31 @@
 {
-    "schemaVersion": 1,
-    "id": "irl-redactor",
-    "version": "${version}",
-    "name": "IRL Redactor",
-    "description": "Standalone ImGui-based light editor (visual prototype).",
-    "authors": [
-        "qualet"
-    ],
-    "license": "MIT",
-    "icon": "assets/irl-redactor/icon.png",
-    "environment": "*",
-    "entrypoints": {
-        "main": [
-            "org.qualet.irlredactor.IRLRedactorMod"
-        ],
-        "client": [
-            "org.qualet.irlredactor.client.IRLRedactorClient"
-        ]
-    },
-    "mixins": [
-        {
-            "config": "irl-redactor.client.mixins.json",
-            "environment": "client"
-        }
-    ],
-    "depends": {
-        "fabricloader": ">=0.16.0",
-        "minecraft": "~1.21.11",
-        "java": ">=21",
-        "fabric-api": "*",
-        "irl-core": "*"
-    },
-    "breaks": {
-        "bbs": "*"
+  "schemaVersion": 1,
+  "id": "irl-redactor",
+  "version": "${version}",
+  "name": "IRL Redactor",
+  "description": "Client-side ImGui light editor and shader patching tools.",
+  "authors": ["qualet"],
+  "license": "MIT",
+  "icon": "assets/irl-redactor/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "main": ["org.qualet.irlredactor.IRLRedactorMod"],
+    "client": ["org.qualet.irlredactor.client.IRLRedactorClient"]
+  },
+  "mixins": [
+    {
+      "config": "irl-redactor.client.mixins.json",
+      "environment": "client"
     }
+  ],
+  "depends": {
+    "fabricloader": ">=0.20.1",
+    "minecraft": "~26.3",
+    "java": ">=25",
+    "fabric-api": "*",
+    "irl-core": "1.2.0+26.3"
+  },
+  "breaks": {
+    "bbs": "*"
+  }
 }
