@@ -72,7 +72,7 @@ public final class LightGuideRenderer
         }
     }
 
-    private static void renderGuides(WorldRenderContext ctx)
+    private static void renderGuides(LevelRenderContext ctx)
     {
         // When the editor overlay is up it draws the richer ImGui guides itself
         // (GuideOverlay) — suppress this in-world wire pass so they don't double up.
