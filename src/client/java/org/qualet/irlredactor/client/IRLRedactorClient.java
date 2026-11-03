@@ -4,7 +4,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import imgui.ImGui;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.KeyMapping;
@@ -13,7 +13,6 @@ import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.LevelResource;
-import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL30;
 import org.qualet.irl.light.IrlSamplers;
 import org.qualet.irl.light.shadow.RedactorEntityCasterSource;
@@ -101,10 +100,10 @@ public class IRLRedactorClient implements ClientModInitializer
         // rebound from its 2D registration to GL_TEXTURE_2D_ARRAY at bind time.
         IrlSamplers.register("irl_cookieArray", CookieArray::getGlTextureId, GL30.GL_TEXTURE_2D_ARRAY);
 
-        openEditor = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+        openEditor = KeyMappingHelper.registerKeyMapping(new KeyMapping(
             "key.irl-redactor.open_editor",
             InputConstants.Type.KEYSYM,
-            GLFW.GLFW_KEY_J,
+            InputConstants.KEY_J,
             // 1.21.11: KeyBinding.Category (registered Identifier) replaced the plain
             // String category — see the CATEGORY field.
             CATEGORY
@@ -113,7 +112,7 @@ public class IRLRedactorClient implements ClientModInitializer
         freeCamera = KeyBindingHelper.registerKeyBinding(new KeyMapping(
             "key.irl-redactor.free_camera",
             InputConstants.Type.KEYSYM,
-            GLFW.GLFW_KEY_F,
+            InputConstants.KEY_F,
             // 1.21.11: KeyBinding.Category replaced the plain String category (see CATEGORY).
             CATEGORY
         ));
@@ -254,7 +253,7 @@ public class IRLRedactorClient implements ClientModInitializer
      */
     private static boolean isBoundKeyDown(long handle)
     {
-        InputConstants.Key key = KeyBindingHelper.getBoundKeyOf(openEditor);
+        InputConstants.Key key = KeyMappingHelper.getBoundKeyOf(openEditor);
         int code = key.getValue();
         switch (key.getType())
         {
