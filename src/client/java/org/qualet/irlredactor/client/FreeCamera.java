@@ -216,7 +216,7 @@ public final class FreeCamera
             dt = MAX_DT;
         }
 
-        updateLook(mc, player, handle);
+        updateLook(mc, player, 0L);
 
         // Read movement raw so it works while the editor screen holds the cursor;
         // gated off while an ImGui text field is focused (typing a light's name).
@@ -406,6 +406,6 @@ public final class FreeCamera
         int w = mc.font.width(speedText);
         int px = mc.getWindow().getGuiScaledWidth() - w - 6;
         int py = mc.getWindow().getGuiScaledHeight() - 14;
-        ctx.drawString(mc.font, speedText, px, py, 0xFFFFFFFF, true);
+        ctx.text(mc.font, speedText, px, py, 0xFFFFFFFF, true);
     }
 }
