@@ -9,7 +9,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.WeakHashMap;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.lwjgl.opengl.GL33C;
 
 /**
@@ -502,7 +502,7 @@ public final class VlProfiler
 
     /** HudRenderCallback (registered unconditionally in IRLRedactorClient;
      *  draws nothing while not collecting — hudLines is cleared on stop). */
-    public static void renderHud(GuiGraphics ctx)
+    public static void renderHud(GuiGraphicsExtractor ctx)
     {
         if (!collecting)
         {
@@ -516,7 +516,7 @@ public final class VlProfiler
         int y = 4;
         for (String lineText : hudLines)
         {
-            ctx.drawString(mc.font, lineText, 4, y, 0xFFE0E0E0, true);
+            ctx.text(mc.font, lineText, 4, y, 0xFFE0E0E0, true);
             y += 10;
         }
     }
