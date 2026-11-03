@@ -1,7 +1,7 @@
 package org.qualet.irlredactor.editor;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.opengl.GL30;
@@ -55,7 +55,7 @@ public class LightEditorScreen extends Screen
     }
 
     @Override
-    public void render(GuiGraphics context, int mouseX, int mouseY, float delta)
+    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta)
     {
         // The host screen draws nothing itself (the dim background comes from the
         // framework's renderBackground). The ImGui panel is overlaid post-blit via
@@ -63,20 +63,10 @@ public class LightEditorScreen extends Screen
     }
 
     @Override
-    protected void renderBlurredBackground(GuiGraphics context)
+    protected void extractBackground(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta)
     {
         // 1.21.x blurs the world behind an open screen; skip it so the light editor
         // keeps a clear view of the scene it is editing.
-    }
-
-    @Override
-    protected void renderMenuBackground(GuiGraphics context)
-    {
-        // Skip the in-world dark overlay too (Screen#renderBackground tiles
-        // INWORLD_MENU_BACKGROUND_TEXTURE over the frame for any open screen). The
-        // editor edits the lit scene, so it must see it undimmed — same reason as
-        // applyBlur above. renderBackground reaches this via its else branch
-        // (deferSubtitles() is false), so no-op'ing it leaves a clean world view.
     }
 
     @Override
