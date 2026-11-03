@@ -6,7 +6,7 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ServerData;
@@ -74,9 +74,9 @@ public class IRLRedactorClient implements ClientModInitializer
         // Dev GPU profiler (editor "perf" section): wire the core-side bake probe
         // and the HUD overlay unconditionally — every call is a cheap no-op until
         // the user flips the runtime toggle (VlProfiler.setCollecting).
-        HudRenderCallback.EVENT.register((ctx, tickDelta) -> VlProfiler.renderHud(ctx));
+        // HUD rendering is registered through the 26.3 HUD element API (migrated separately).
         // Free-fly camera "Speed x.x" indicator (no-op while the camera is off).
-        HudRenderCallback.EVENT.register((ctx, tickDelta) -> FreeCamera.renderHud(ctx));
+        
         ShadowEngine.installBakeProbe(new ShadowBakeProbe()
         {
             @Override
@@ -102,7 +102,7 @@ public class IRLRedactorClient implements ClientModInitializer
 
         openEditor = KeyMappingHelper.registerKeyMapping(new KeyMapping(
             "key.irl-redactor.open_editor",
-            InputConstants.Type.KEYSYM,
+            InputConstants.Type.KEYBOARD,
             InputConstants.KEY_J,
             // 1.21.11: KeyBinding.Category (registered Identifier) replaced the plain
             // String category — see the CATEGORY field.
@@ -111,7 +111,7 @@ public class IRLRedactorClient implements ClientModInitializer
 
         freeCamera = KeyMappingHelper.registerKeyMapping(new KeyMapping(
             "key.irl-redactor.free_camera",
-            InputConstants.Type.KEYSYM,
+            InputConstants.Type.KEYBOARD,
             InputConstants.KEY_F,
             // 1.21.11: KeyBinding.Category replaced the plain String category (see CATEGORY).
             CATEGORY
@@ -168,7 +168,7 @@ public class IRLRedactorClient implements ClientModInitializer
         // keybind can't fire behind a screen, so no clash with swap-offhand)
         // toggles it off/on within the session. Auto-off + position reset on close.
         long fcHandle = client.getWindow().handle();
-        boolean fcDown = FreeCamera.isKeyDown(fcHandle, freeCamera);
+        boolean fcDown = freeCamera.isDown();
         boolean fcEdge = fcDown && !fcKeyWasDown;
         fcKeyWasDown = fcDown;
         boolean editorOpen = LightEditorScreen.isOverlayActive();
@@ -209,7 +209,7 @@ public class IRLRedactorClient implements ClientModInitializer
         // key/button the open-editor bind points at, so a rebind in Options → Controls
         // also drives the replay toggle — not the hard-coded default. See isBoundKeyDown.
         long handle = client.getWindow().handle();
-        boolean down = isBoundKeyDown(handle);
+        boolean down = openEditor.isDown();
         boolean rawPressed = down && !rawToggleDown;
         rawToggleDown = down;
 
@@ -241,29 +241,6 @@ public class IRLRedactorClient implements ClientModInitializer
             {
                 client.setScreen(new LightEditorScreen());
             }
-        }
-    }
-
-    /**
-     * Raw GLFW read of whatever key/button the {@link #openEditor} bind currently
-     * points at, so a rebind in Options → Controls also drives the replay-overlay
-     * toggle (the vanilla {@code wasPressed()} queue is dead while Replay Mod's
-     * timeline screen is up). Returns false for an unbound key or a scancode bind —
-     * nothing to raw-poll there; the keybind queue still covers fly-camera mode.
-     */
-    private static boolean isBoundKeyDown(long handle)
-    {
-        InputConstants.Key key = KeyMappingHelper.getBoundKeyOf(openEditor);
-        int code = key.getValue();
-        switch (key.getType())
-        {
-            case KEYSYM:
-                return code != GLFW.GLFW_KEY_UNKNOWN
-                    && GLFW.glfwGetKey(handle, code) == GLFW.GLFW_PRESS;
-            case MOUSE:
-                return GLFW.glfwGetMouseButton(handle, code) == GLFW.GLFW_PRESS;
-            default: // SCANCODE — no reliable raw poll; rely on the keybind queue.
-                return false;
         }
     }
 
