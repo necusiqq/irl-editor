@@ -138,7 +138,7 @@ public final class FreeCamera
             // from the eye again.
             if (!posValid)
             {
-                Camera cam = mc.gameRenderer.getMainCamera();
+                Camera cam = mc.gameRenderer.mainCamera();
                 Vec3 start = cam != null && cam.isInitialized() ? cam.position() : player.getEyePosition();
                 x = start.x;
                 y = start.y;
