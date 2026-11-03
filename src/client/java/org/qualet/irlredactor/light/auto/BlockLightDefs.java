@@ -4,6 +4,8 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.RedstoneWireBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -128,6 +130,11 @@ public final class BlockLightDefs
         return state.getLightEmission() > 0 || state.is(Blocks.REDSTONE_WIRE);
     }
 
+    private static Block candle(String id)
+    {
+        return BuiltInRegistries.BLOCK.getValue(ResourceLocation.withDefaultNamespace(id));
+    }
+
     static
     {
         // --- torch family ---------------------------------------------------
@@ -185,22 +192,22 @@ public final class BlockLightDefs
         // --- candles (warm flame; one entry per dyed variant) ---------------
         float cr = 1.00f, cg = 0.70f, cb = 0.35f, ci = 0.8f, crad = 8f;
         put(Blocks.CANDLE,            cr, cg, cb, ci, crad);
-        put(Blocks.WHITE_CANDLE,      cr, cg, cb, ci, crad);
-        put(Blocks.ORANGE_CANDLE,     cr, cg, cb, ci, crad);
-        put(Blocks.MAGENTA_CANDLE,    cr, cg, cb, ci, crad);
-        put(Blocks.LIGHT_BLUE_CANDLE, cr, cg, cb, ci, crad);
-        put(Blocks.YELLOW_CANDLE,     cr, cg, cb, ci, crad);
-        put(Blocks.LIME_CANDLE,       cr, cg, cb, ci, crad);
-        put(Blocks.PINK_CANDLE,       cr, cg, cb, ci, crad);
-        put(Blocks.GRAY_CANDLE,       cr, cg, cb, ci, crad);
-        put(Blocks.LIGHT_GRAY_CANDLE, cr, cg, cb, ci, crad);
-        put(Blocks.CYAN_CANDLE,       cr, cg, cb, ci, crad);
-        put(Blocks.PURPLE_CANDLE,     cr, cg, cb, ci, crad);
-        put(Blocks.BLUE_CANDLE,       cr, cg, cb, ci, crad);
-        put(Blocks.BROWN_CANDLE,      cr, cg, cb, ci, crad);
-        put(Blocks.GREEN_CANDLE,      cr, cg, cb, ci, crad);
-        put(Blocks.RED_CANDLE,        cr, cg, cb, ci, crad);
-        put(Blocks.BLACK_CANDLE,      cr, cg, cb, ci, crad);
+        put(candle("white_candle"),      cr, cg, cb, ci, crad);
+        put(candle("orange_candle"),     cr, cg, cb, ci, crad);
+        put(candle("magenta_candle"),    cr, cg, cb, ci, crad);
+        put(candle("light_blue_candle"), cr, cg, cb, ci, crad);
+        put(candle("yellow_candle"),     cr, cg, cb, ci, crad);
+        put(candle("lime_candle"),       cr, cg, cb, ci, crad);
+        put(candle("pink_candle"),       cr, cg, cb, ci, crad);
+        put(candle("gray_candle"),       cr, cg, cb, ci, crad);
+        put(candle("light_gray_candle"), cr, cg, cb, ci, crad);
+        put(candle("cyan_candle"),       cr, cg, cb, ci, crad);
+        put(candle("purple_candle"),     cr, cg, cb, ci, crad);
+        put(candle("blue_candle"),       cr, cg, cb, ci, crad);
+        put(candle("brown_candle"),      cr, cg, cb, ci, crad);
+        put(candle("green_candle"),      cr, cg, cb, ci, crad);
+        put(candle("red_candle"),        cr, cg, cb, ci, crad);
+        put(candle("black_candle"),      cr, cg, cb, ci, crad);
 
         // Redstone dust: ОЧЕНЬ слабое красное свечение, растёт с уровнем сигнала.
         // Non-shadowing. intensity ~0.06..0.18, radius ~2..4.5 (× global sliders).
