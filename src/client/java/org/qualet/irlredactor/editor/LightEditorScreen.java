@@ -127,7 +127,7 @@ public class LightEditorScreen extends Screen
     public static void renderActiveOverlay()
     {
         Minecraft mc = Minecraft.getInstance();
-        if (!editorVisible && !(mc.screen instanceof LightEditorScreen))
+        if (!editorVisible && !(mc.gui.screen() instanceof LightEditorScreen))
         {
             return;
         }
@@ -157,9 +157,9 @@ public class LightEditorScreen extends Screen
     private static void forceClose(Minecraft mc)
     {
         editorVisible = false;
-        if (mc.screen instanceof LightEditorScreen)
+        if (mc.gui.screen() instanceof LightEditorScreen)
         {
-            mc.setScreen(null);
+            mc.gui.setScreen(null);
         }
     }
 }
