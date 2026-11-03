@@ -237,9 +237,9 @@ public class IRLRedactorClient implements ClientModInitializer
             {
                 LightEditorScreen.setVisible(false);
             }
-            if (keybindPressed && client.screen == null)
+            if (keybindPressed && client.gui.screen() == null)
             {
-                client.setScreen(new LightEditorScreen());
+                client.gui.setScreen(new LightEditorScreen());
             }
         }
     }
