@@ -51,8 +51,8 @@ def imguiVersion = '1.89.0'
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	// Minecraft 26.3 is distributed unobfuscated; no mappings dependency is needed.
-	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
-	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 	// --- Shared BBS-free engine: light SSBO + .irlights patcher (irl-core) ---
 	// Per-version Loom module from mavenLocal: clientImplementation remaps it from
