@@ -109,7 +109,7 @@ public class IRLRedactorClient implements ClientModInitializer
             CATEGORY
         ));
 
-        freeCamera = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+        freeCamera = KeyMappingHelper.registerKeyMapping(new KeyMapping(
             "key.irl-redactor.free_camera",
             InputConstants.Type.KEYSYM,
             InputConstants.KEY_F,
