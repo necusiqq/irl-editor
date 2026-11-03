@@ -96,31 +96,32 @@ public final class LightGuideRenderer
         }
         PoseStack.Pose entry = ms.last();
 
-        // Vanilla line layer (POSITION_COLOR_NORMAL); the world renderer owns the
-        // flush, so we only emit segments here.
-        VertexConsumer buf = ctx.bufferSource().getBuffer(RenderTypes.lines());
-
-        for (PlacedLight l : LightScene.all())
+        // 26.3 no longer exposes a mutable buffer source from the level
+        // context. Submit the guide geometry through the deferred collector.
+        ctx.submitNodeCollector().submitCustomGeometry(ms, RenderTypes.lines(), (pose, buf) ->
         {
-            if (l == null)
+            for (PlacedLight l : LightScene.all())
             {
-                continue;
-            }
+                if (l == null)
+                {
+                    continue;
+                }
 
-            float r = vis(l.r), g = vis(l.g), b = vis(l.b);
-            float x = (float) (l.x - c.x);
-            float y = (float) (l.y - c.y);
-            float z = (float) (l.z - c.z);
+                float r = vis(l.r), g = vis(l.g), b = vis(l.b);
+                float x = (float) (l.x - c.x);
+                float y = (float) (l.y - c.y);
+                float z = (float) (l.z - c.z);
 
-            if (l.type == PlacedLight.Type.SPOT)
-            {
-                drawSpot(buf, entry, x, y, z, l, r, g, b);
+                if (l.type == PlacedLight.Type.SPOT)
+                {
+                    drawSpot(buf, pose, x, y, z, l, r, g, b);
+                }
+                else
+                {
+                    drawPoint(buf, pose, x, y, z, r, g, b);
+                }
             }
-            else
-            {
-                drawPoint(buf, entry, x, y, z, r, g, b);
-            }
-        }
+        });
     }
 
     private static void drawPoint(VertexConsumer buf, PoseStack.Pose e, float x, float y, float z, float r, float g, float b)
