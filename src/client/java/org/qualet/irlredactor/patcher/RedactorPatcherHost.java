@@ -68,7 +68,7 @@ public final class RedactorPatcherHost implements PatcherHost
     @Override
     public void openFolder(Path dir)
     {
-        Util.getPlatform().openFile(dir.toFile());
+        Util.getPlatform().openUri(dir.toUri());
     }
 
     @Override
