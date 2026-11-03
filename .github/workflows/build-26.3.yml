@@ -1,0 +1,38 @@
+name: Build Minecraft 26.3 mod
+on:
+  push:
+    branches: [port/26.3]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: necusiqq/irl-core
+          ref: port/26.3
+          path: irl-core
+      - uses: actions/checkout@v4
+        with:
+          repository: necusiqq/irl-editor
+          ref: port/26.3
+          path: irl-editor
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Publish core locally
+        working-directory: irl-core
+        run: bash ./gradlew publishToMavenLocal
+      - name: Build editor
+        working-directory: irl-editor
+        run: bash ./gradlew clean build
+      - name: Upload mod jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: irl-redactor-minecraft-26.3
+          path: irl-editor/build/libs/*.jar
+          if-no-files-found: error
