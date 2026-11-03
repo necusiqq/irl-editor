@@ -63,7 +63,7 @@ public class LightEditorScreen extends Screen
     }
 
     @Override
-    protected void extractBackground(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta)
+    public void extractBackground(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta)
     {
         // 1.21.x blurs the world behind an open screen; skip it so the light editor
         // keeps a clear view of the scene it is editing.
