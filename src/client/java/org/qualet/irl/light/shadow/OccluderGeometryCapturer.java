@@ -6,25 +6,17 @@ import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.OrderedSubmitNodeCollector;
-import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.block.MovingBlockRenderState;
+import net.minecraft.client.renderer.SubmitNodeCollection;
+import net.minecraft.client.renderer.UvMapping;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.entity.state.CameraRenderState;
-import net.minecraft.network.chat.Component;
-import net.minecraft.util.FormattedCharSequence;
+
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.phys.Vec3;
-import org.joml.Quaternionf;
 
-import java.util.List;
 
 /**
  * Captures the REAL model geometry of a shadow occluder into a flat CPU triangle
@@ -297,7 +289,7 @@ public final class OccluderGeometryCapturer
      * are not part of an occluder silhouette). Mirrors {@code
      * OrderedRenderCommandQueueImpl}'s method surface.
      */
-    private static final class CaptureQueue implements OrderedSubmitNodeCollector
+    private static final class CaptureQueue extends SubmitNodeCollection
     {
         private final Capture capture;
 
@@ -307,15 +299,8 @@ public final class OccluderGeometryCapturer
         }
 
         @Override
-        public OrderedSubmitNodeCollector getBatchingQueue(int order)
-        {
-            return this; // no batching: we render straight into the capture
-        }
-
-        @Override
         public <S> void submitModel(Model<? super S> model, S state, PoseStack matrices, RenderType renderLayer,
-                                    int light, int overlay, int tintedColor, TextureAtlasSprite sprite, int outlineColor,
-                                    ModelFeatureRenderer.CrumblingOverlay crumblingOverlay)
+                                    int light, int overlay, int tintedColor, UvMapping uvMapping, int outlineColor)
         {
             if (model == null)
             {
@@ -328,147 +313,8 @@ public final class OccluderGeometryCapturer
             }
             catch (Throwable ignored)
             {
-                // skip one bad model; the silhouette degrades, the bake survives
+                // A failed model is omitted; the shadow bake continues.
             }
-        }
-
-        @Override
-        public void submitModelPart(ModelPart part, PoseStack matrices, RenderType renderLayer, int light, int overlay,
-                                    TextureAtlasSprite sprite, boolean sheeted, boolean hasGlint, int tintedColor,
-                                    ModelFeatureRenderer.CrumblingOverlay crumblingOverlay, int i)
-        {
-            if (part == null)
-            {
-                return;
-            }
-            try
-            {
-                part.render(matrices, capture, light, overlay, tintedColor);
-            }
-            catch (Throwable ignored)
-            {
-            }
-        }
-
-        @Override
-        public void submitItem(PoseStack matrices, ItemDisplayContext displayContext, int light, int overlay,
-                               int outlineColors, int[] tintLayers, List<BakedQuad> quads, RenderType renderLayer,
-                               ItemStackRenderState.FoilType glintType)
-        {
-            if (quads == null || quads.isEmpty())
-            {
-                return;
-            }
-            try
-            {
-                PoseStack.Pose e = matrices.last();
-                for (int qi = 0, n = quads.size(); qi < n; qi++)
-                {
-                    BakedQuad q = quads.get(qi);
-                    if (q != null)
-                    {
-                        // default quad(...) transforms by the matrix + feeds our
-                        // vertex()/texture() -> captured in world space.
-                        capture.putBulkData(e, q, 1f, 1f, 1f, 1f, light, overlay);
-                    }
-                }
-            }
-            catch (Throwable ignored)
-            {
-            }
-        }
-
-        // --- no-op submits (not part of an occluder silhouette) ---------------
-
-        @Override
-        public void submitShadowPieces(PoseStack matrices, float shadowRadius, List<EntityRenderState.ShadowPiece> shadowPieces)
-        {
-        }
-
-        @Override
-        public void submitLabel(PoseStack matrices, Vec3 nameLabelPos, int y, Component label, boolean notSneaking,
-                                int light, double squaredDistanceToCamera, CameraRenderState cameraState)
-        {
-        }
-
-        @Override
-        public void submitText(PoseStack matrices, float x, float y, FormattedCharSequence text, boolean dropShadow,
-                               Font.DisplayMode layerType, int light, int color, int backgroundColor, int outlineColor)
-        {
-        }
-
-        @Override
-        public void submitFire(PoseStack matrices, EntityRenderState renderState, Quaternionf rotation)
-        {
-        }
-
-        @Override
-        public void submitLeash(PoseStack matrices, EntityRenderState.LeashState leashData)
-        {
-        }
-
-        @Override
-        public void submitBlock(PoseStack matrices, BlockState state, int light, int overlay, int outlineColor)
-        {
-            // Block held/worn by a living mob (enderman carried block, iron-golem
-            // poppy, copper-golem head, ...). Resolve its model and tessellate it
-            // into the capture so the attachment casts a silhouette too.
-            if (state == null || state.getRenderShape() == RenderShape.INVISIBLE)
-            {
-                return;
-            }
-            try
-            {
-                Minecraft mc = Minecraft.getInstance();
-                if (mc == null)
-                {
-                    return;
-                }
-                BlockStateModel model = mc.getBlockRenderer().getBlockModel(state);
-                if (model != null)
-                {
-                    ModelBlockRenderer.renderModel(matrices.last(), capture, model, 1f, 1f, 1f, light, overlay);
-                }
-            }
-            catch (Throwable ignored)
-            {
-            }
-        }
-
-        @Override
-        public void submitMovingBlock(PoseStack matrices, MovingBlockRenderState state)
-        {
-            // Falling/piston blocks are not living-mob attachments (their entities
-            // are not collected as occluders), so nothing to capture here.
-        }
-
-        @Override
-        public void submitBlockStateModel(PoseStack matrices, RenderType renderLayer, BlockStateModel model,
-                                          float r, float g, float b, int light, int overlay, int outlineColor)
-        {
-            // Block-state model attached to a living mob (snow-golem pumpkin head,
-            // mooshroom back mushrooms, ...) — tessellate it into the capture.
-            if (model == null)
-            {
-                return;
-            }
-            try
-            {
-                ModelBlockRenderer.renderModel(matrices.last(), capture, model, r, g, b, light, overlay);
-            }
-            catch (Throwable ignored)
-            {
-            }
-        }
-
-        @Override
-        public void submitCustom(PoseStack matrices, RenderType renderLayer, SubmitNodeCollector.CustomGeometryRenderer customRenderer)
-        {
-        }
-
-        @Override
-        public void submitCustom(SubmitNodeCollector.ParticleGroupRenderer customRenderer)
-        {
         }
     }
 }
