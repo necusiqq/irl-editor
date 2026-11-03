@@ -2,8 +2,8 @@ package org.qualet.irlredactor.light;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.world.phys.Vec3;
@@ -51,10 +51,10 @@ public final class LightGuideRenderer
     {
         // BEFORE_DEBUG_RENDER = Fabric's recommended hook for debug-style lines;
         // the world renderer flushes its line buffer right after.
-        WorldRenderEvents.BEFORE_DEBUG_RENDER.register(LightGuideRenderer::onRender);
+        LevelRenderEvents.AFTER_SOLID_FEATURES.register(LightGuideRenderer::onRender);
     }
 
-    private static void onRender(WorldRenderContext ctx)
+    private static void onRender(LevelRenderContext ctx)
     {
         if (broken || !LightConfig.showGuides || LightScene.count() == 0)
         {
@@ -82,14 +82,14 @@ public final class LightGuideRenderer
             return;
         }
 
-        Camera cam = ctx.gameRenderer().getCamera();
+        Camera cam = ctx.gameRenderer().mainCamera();
         if (cam == null)
         {
             return;
         }
 
         Vec3 c = cam.position();
-        PoseStack ms = ctx.matrices();
+        PoseStack ms = ctx.poseStack();
         if (ms == null)
         {
             return;
@@ -98,7 +98,7 @@ public final class LightGuideRenderer
 
         // Vanilla line layer (POSITION_COLOR_NORMAL); the world renderer owns the
         // flush, so we only emit segments here.
-        VertexConsumer buf = ctx.consumers().getBuffer(RenderTypes.lines());
+        VertexConsumer buf = ctx.bufferSource().getBuffer(RenderTypes.lines());
 
         for (PlacedLight l : LightScene.all())
         {
