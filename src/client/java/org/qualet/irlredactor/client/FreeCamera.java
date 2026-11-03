@@ -216,18 +216,18 @@ public final class FreeCamera
             dt = MAX_DT;
         }
 
-        updateLook(mc, player, 0L);
+        updateLook(mc, player);
 
         // Read movement raw so it works while the editor screen holds the cursor;
         // gated off while an ImGui text field is focused (typing a light's name).
         boolean typing = ImGuiInput.wantsKeyboard();
         Options o = mc.options;
-        boolean fwd = !typing && isKeyDown(handle, o.keyUp);
-        boolean back = !typing && isKeyDown(handle, o.keyDown);
-        boolean left = !typing && isKeyDown(handle, o.keyLeft);
-        boolean right = !typing && isKeyDown(handle, o.keyRight);
-        boolean up = !typing && isKeyDown(handle, o.keyJump);
-        boolean down = !typing && isKeyDown(handle, o.keyShift);
+        boolean fwd = !typing && isKeyDown(o.keyUp);
+        boolean back = !typing && isKeyDown(o.keyDown);
+        boolean left = !typing && isKeyDown(o.keyLeft);
+        boolean right = !typing && isKeyDown(o.keyRight);
+        boolean up = !typing && isKeyDown(o.keyJump);
+        boolean down = !typing && isKeyDown(o.keyShift);
 
         double yawRad = Math.toRadians(player.getYRot());
         double pitchRad = Math.toRadians(player.getXRot());
@@ -299,7 +299,7 @@ public final class FreeCamera
      * applied to the player (the camera follows it), matching vanilla feel via
      * {@code changeLookDirection}.
      */
-    private static void updateLook(Minecraft mc, LocalPlayer player, long handle)
+    private static void updateLook(Minecraft mc, LocalPlayer player)
     {
         var mouse = mc.mouseHandler;
         boolean lmb = mouse.isLeftPressed();
@@ -356,7 +356,7 @@ public final class FreeCamera
      * rebind). Used for both the toggle and the movement keys so they work behind
      * the editor screen, where the vanilla keybind state is frozen.
      */
-    public static boolean isKeyDown(long handle, KeyMapping bind)
+    public static boolean isKeyDown(KeyMapping bind)
     {
         return bind != null && bind.isDown();
     }
