@@ -6,12 +6,12 @@ import imgui.ImGui;
 import imgui.ImGuiIO;
 import imgui.gl3.ImGuiImplGl3;
 import imgui.glfw.ImGuiImplGlfw;
-import net.minecraft.client.MinecraftClient;
 import org.qualet.irlredactor.IRLRedactorMod;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import net.minecraft.client.Minecraft;
 
 /**
  * Owns the ImGui context and the GLFW/GL3 backends. ImGui is rendered on top of
@@ -59,7 +59,7 @@ public final class ImGuiRuntime
 
         try
         {
-            long handle = MinecraftClient.getInstance().getWindow().getHandle();
+            long handle = Minecraft.getInstance().getWindow().handle();
 
             ImGui.createContext();
 

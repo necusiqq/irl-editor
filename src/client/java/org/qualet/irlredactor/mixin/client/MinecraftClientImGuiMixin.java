@@ -1,6 +1,6 @@
 package org.qualet.irlredactor.mixin.client;
 
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import org.qualet.irlredactor.editor.LightEditorScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -19,14 +19,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * yet, so ImGui lands on top and is presented. The call is a cheap no-op unless a
  * {@link LightEditorScreen} is open.</p>
  */
-@Mixin(MinecraftClient.class)
+@Mixin(Minecraft.class)
 public class MinecraftClientImGuiMixin
 {
     @Inject(
-        method = "render(Z)V",
+        method = "runTick(Z)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/gl/Framebuffer;blitToScreen()V",
+            target = "Lcom/mojang/blaze3d/pipeline/RenderTarget;blitToScreen()V",
             shift = At.Shift.AFTER
         )
     )

@@ -1,12 +1,12 @@
 package org.qualet.irlredactor.mixin.client;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.state.BlockState;
 import org.qualet.irl.light.shadow.BlockShadowCache;
 
 /**
@@ -42,11 +42,11 @@ import org.qualet.irl.light.shadow.BlockShadowCache;
  * ClientWorld is client-only by construction, so no isClient gate is needed —
  * the integrated server runs on ServerWorld instances and never lands here.
  */
-@Mixin(ClientWorld.class)
+@Mixin(ClientLevel.class)
 public class WorldBlockChangeMixin
 {
     @Inject(
-        method = "updateListeners(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/block/BlockState;I)V",
+        method = "sendBlockUpdated(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockState;I)V",
         at = @At("HEAD")
     )
     private void irlite$invalidateBlockShadows(
@@ -57,7 +57,7 @@ public class WorldBlockChangeMixin
         {
             return;
         }
-        BlockShadowCache.invalidateChange((ClientWorld) (Object) this, pos, oldState, newState);
+        BlockShadowCache.invalidateChange((ClientLevel) (Object) this, pos, oldState, newState);
         // (Auto block-lights need no signal here: their rolling scan picks up
         //  emitter placement/removal within a cycle — see AutoLightManager.)
     }

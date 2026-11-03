@@ -1,12 +1,11 @@
 package org.qualet.irlredactor.light.auto;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.RedstoneWireBlock;
-
 import java.util.IdentityHashMap;
 import java.util.Map;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.RedStoneWireBlock;
+import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * Hardcoded light parameters for vanilla light-emitting blocks — the curated
@@ -109,14 +108,14 @@ public final class BlockLightDefs
      *  emits) plus non-luminous special cases (powered redstone dust). */
     public static Def resolve(BlockState state)
     {
-        if (state.getLuminance() > 0)
+        if (state.getLightEmission() > 0)
         {
             return DEFS.get(state.getBlock());
         }
         // Non-luminous special cases (vanilla getLuminance() == 0):
-        if (state.isOf(Blocks.REDSTONE_WIRE))
+        if (state.is(Blocks.REDSTONE_WIRE))
         {
-            int power = state.get(RedstoneWireBlock.POWER);
+            int power = state.getValue(RedStoneWireBlock.POWER);
             return power > 0 ? REDSTONE_BY_POWER[power] : null;
         }
         return null;
@@ -126,7 +125,7 @@ public final class BlockLightDefs
      *  yield an auto-light (the exact decision is {@link #resolve}). */
     public static boolean paletteCandidate(BlockState state)
     {
-        return state.getLuminance() > 0 || state.isOf(Blocks.REDSTONE_WIRE);
+        return state.getLightEmission() > 0 || state.is(Blocks.REDSTONE_WIRE);
     }
 
     static

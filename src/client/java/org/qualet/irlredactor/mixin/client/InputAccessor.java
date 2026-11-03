@@ -1,7 +1,7 @@
 package org.qualet.irlredactor.mixin.client;
 
-import net.minecraft.client.input.Input;
-import net.minecraft.util.math.Vec2f;
+import net.minecraft.client.player.ClientInput;
+import net.minecraft.world.phys.Vec2;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
@@ -15,9 +15,9 @@ import org.spongepowered.asm.mixin.gen.Accessor;
  * target class". An {@code @Accessor} on the DECLARING class ({@code Input}) is
  * the robust way to reach a protected/inherited field.</p>
  */
-@Mixin(Input.class)
+@Mixin(ClientInput.class)
 public interface InputAccessor
 {
-    @Accessor("movementVector")
-    void setMovementVector(Vec2f value);
+    @Accessor("moveVector")
+    void setMovementVector(Vec2 value);
 }

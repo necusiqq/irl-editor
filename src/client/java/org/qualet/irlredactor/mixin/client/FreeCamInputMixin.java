@@ -1,14 +1,13 @@
 package org.qualet.irlredactor.mixin.client;
 
-import net.minecraft.client.input.Input;
-import net.minecraft.client.input.KeyboardInput;
-import net.minecraft.util.PlayerInput;
-import net.minecraft.util.math.Vec2f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
+import net.minecraft.client.player.ClientInput;
+import net.minecraft.client.player.KeyboardInput;
+import net.minecraft.world.entity.player.Input;
+import net.minecraft.world.phys.Vec2;
 import org.qualet.irlredactor.client.FreeCamera;
 
 /**
@@ -38,8 +37,8 @@ public class FreeCamInputMixin
         {
             return;
         }
-        Input self = (Input) (Object) this;
-        self.playerInput = PlayerInput.DEFAULT;
-        ((InputAccessor) self).setMovementVector(Vec2f.ZERO);
+        ClientInput self = (ClientInput) (Object) this;
+        self.keyPresses = Input.EMPTY;
+        ((InputAccessor) self).setMovementVector(Vec2.ZERO);
     }
 }

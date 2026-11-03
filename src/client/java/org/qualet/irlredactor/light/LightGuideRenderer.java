@@ -1,12 +1,12 @@
 package org.qualet.irlredactor.light;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.RenderLayers;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.client.Camera;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.world.phys.Vec3;
 import org.qualet.irl.light.LightMath;
 import org.qualet.irlredactor.editor.LightEditorScreen;
 
@@ -88,17 +88,17 @@ public final class LightGuideRenderer
             return;
         }
 
-        Vec3d c = cam.getCameraPos();
-        MatrixStack ms = ctx.matrices();
+        Vec3 c = cam.position();
+        PoseStack ms = ctx.matrices();
         if (ms == null)
         {
             return;
         }
-        MatrixStack.Entry entry = ms.peek();
+        PoseStack.Pose entry = ms.last();
 
         // Vanilla line layer (POSITION_COLOR_NORMAL); the world renderer owns the
         // flush, so we only emit segments here.
-        VertexConsumer buf = ctx.consumers().getBuffer(RenderLayers.lines());
+        VertexConsumer buf = ctx.consumers().getBuffer(RenderTypes.lines());
 
         for (PlacedLight l : LightScene.all())
         {
@@ -123,14 +123,14 @@ public final class LightGuideRenderer
         }
     }
 
-    private static void drawPoint(VertexConsumer buf, MatrixStack.Entry e, float x, float y, float z, float r, float g, float b)
+    private static void drawPoint(VertexConsumer buf, PoseStack.Pose e, float x, float y, float z, float r, float g, float b)
     {
         line(buf, e, x - POINT_CROSS, y, z, x + POINT_CROSS, y, z, r, g, b);
         line(buf, e, x, y - POINT_CROSS, z, x, y + POINT_CROSS, z, r, g, b);
         line(buf, e, x, y, z - POINT_CROSS, x, y, z + POINT_CROSS, r, g, b);
     }
 
-    private static void drawSpot(VertexConsumer buf, MatrixStack.Entry e, float x, float y, float z, PlacedLight l, float r, float g, float b)
+    private static void drawSpot(VertexConsumer buf, PoseStack.Pose e, float x, float y, float z, PlacedLight l, float r, float g, float b)
     {
         // Normalized direction (defaults straight down when degenerate).
         float[] dir = LightMath.normalizeDir(l.dirX, l.dirY, l.dirZ, 0f, -1f, 0f, new float[3]);
@@ -179,7 +179,7 @@ public final class LightGuideRenderer
     /** Emit one camera-relative segment into the line consumer. The POSITION_COLOR_NORMAL
      *  format needs a normal per vertex; the line direction is the natural choice
      *  (matches vanilla debug-line rendering). */
-    private static void line(VertexConsumer buf, MatrixStack.Entry e, float x1, float y1, float z1, float x2, float y2, float z2, float r, float g, float b)
+    private static void line(VertexConsumer buf, PoseStack.Pose e, float x1, float y1, float z1, float x2, float y2, float z2, float r, float g, float b)
     {
         float nx = x2 - x1, ny = y2 - y1, nz = z2 - z1;
         float nl = (float) Math.sqrt(nx * nx + ny * ny + nz * nz);
@@ -194,8 +194,8 @@ public final class LightGuideRenderer
         // The lines layer uses POSITION_COLOR_NORMAL_LINE_WIDTH — the per-vertex
         // LineWidth element is mandatory (omitting it throws "Missing elements in
         // vertex: LineWidth"), so it must be written on every vertex.
-        buf.vertex(e.getPositionMatrix(), x1, y1, z1).color(r, g, b, 1f).normal(e, nx, ny, nz).lineWidth(LINE_WIDTH);
-        buf.vertex(e.getPositionMatrix(), x2, y2, z2).color(r, g, b, 1f).normal(e, nx, ny, nz).lineWidth(LINE_WIDTH);
+        buf.addVertex(e.pose(), x1, y1, z1).setColor(r, g, b, 1f).setNormal(e, nx, ny, nz).setLineWidth(LINE_WIDTH);
+        buf.addVertex(e.pose(), x2, y2, z2).setColor(r, g, b, 1f).setNormal(e, nx, ny, nz).setLineWidth(LINE_WIDTH);
     }
 
     /** Clamp to [0,1] with a floor so a very dark light still has a visible guide. */

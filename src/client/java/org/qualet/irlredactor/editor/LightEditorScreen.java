@@ -1,9 +1,9 @@
 package org.qualet.irlredactor.editor;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 import org.lwjgl.opengl.GL30;
 import org.qualet.irlredactor.client.IRLRedactorClient;
 import org.qualet.irlredactor.imgui.ImGuiRuntime;
@@ -45,17 +45,17 @@ public class LightEditorScreen extends Screen
 
     public LightEditorScreen()
     {
-        super(Text.literal("IRLite Light Editor"));
+        super(Component.literal("IRLite Light Editor"));
     }
 
     @Override
-    public boolean shouldPause()
+    public boolean isPauseScreen()
     {
         return false;
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta)
+    public void render(GuiGraphics context, int mouseX, int mouseY, float delta)
     {
         // The host screen draws nothing itself (the dim background comes from the
         // framework's renderBackground). The ImGui panel is overlaid post-blit via
@@ -63,14 +63,14 @@ public class LightEditorScreen extends Screen
     }
 
     @Override
-    protected void applyBlur(DrawContext context)
+    protected void renderBlurredBackground(GuiGraphics context)
     {
         // 1.21.x blurs the world behind an open screen; skip it so the light editor
         // keeps a clear view of the scene it is editing.
     }
 
     @Override
-    protected void renderDarkening(DrawContext context)
+    protected void renderMenuBackground(GuiGraphics context)
     {
         // Skip the in-world dark overlay too (Screen#renderBackground tiles
         // INWORLD_MENU_BACKGROUND_TEXTURE over the frame for any open screen). The
@@ -97,7 +97,7 @@ public class LightEditorScreen extends Screen
      *  screen) — used by the input-capture mixins to gate when to swallow input. */
     public static boolean isOverlayActive()
     {
-        return editorVisible || MinecraftClient.getInstance().currentScreen instanceof LightEditorScreen;
+        return editorVisible || Minecraft.getInstance().screen instanceof LightEditorScreen;
     }
 
     /** Toggles the detached overlay; saves the scene when hiding. */
@@ -126,8 +126,8 @@ public class LightEditorScreen extends Screen
      */
     public static void renderActiveOverlay()
     {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (!editorVisible && !(mc.currentScreen instanceof LightEditorScreen))
+        Minecraft mc = Minecraft.getInstance();
+        if (!editorVisible && !(mc.screen instanceof LightEditorScreen))
         {
             return;
         }
@@ -154,10 +154,10 @@ public class LightEditorScreen extends Screen
     /** Force the editor closed on both entry paths when the ImGui backend is
      *  disabled, so the user isn't stuck with a freed cursor / swallowed input
      *  behind an overlay that renders nothing. */
-    private static void forceClose(MinecraftClient mc)
+    private static void forceClose(Minecraft mc)
     {
         editorVisible = false;
-        if (mc.currentScreen instanceof LightEditorScreen)
+        if (mc.screen instanceof LightEditorScreen)
         {
             mc.setScreen(null);
         }

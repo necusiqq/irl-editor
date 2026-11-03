@@ -1,8 +1,8 @@
 package org.qualet.irlredactor.mixin.client;
 
-import net.minecraft.client.Keyboard;
-import net.minecraft.client.input.CharInput;
-import net.minecraft.client.input.KeyInput;
+import net.minecraft.client.KeyboardHandler;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
 import org.qualet.irlredactor.imgui.ImGuiInput;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -20,11 +20,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * {@code (long, CharInput)} here (were {@code (long,int,int,int,int)} /
  * {@code (long,int,int)} on 1.20.4).</p>
  */
-@Mixin(Keyboard.class)
+@Mixin(KeyboardHandler.class)
 public class KeyboardImGuiMixin
 {
-    @Inject(method = "onKey(JILnet/minecraft/client/input/KeyInput;)V", at = @At("HEAD"), cancellable = true)
-    private void irl$captureKey(long window, int key, KeyInput input, CallbackInfo ci)
+    @Inject(method = "keyPress(JILnet/minecraft/client/input/KeyEvent;)V", at = @At("HEAD"), cancellable = true)
+    private void irl$captureKey(long window, int key, KeyEvent input, CallbackInfo ci)
     {
         if (ImGuiInput.wantsKeyboard())
         {
@@ -32,8 +32,8 @@ public class KeyboardImGuiMixin
         }
     }
 
-    @Inject(method = "onChar(JLnet/minecraft/client/input/CharInput;)V", at = @At("HEAD"), cancellable = true)
-    private void irl$captureChar(long window, CharInput input, CallbackInfo ci)
+    @Inject(method = "charTyped(JLnet/minecraft/client/input/CharacterEvent;)V", at = @At("HEAD"), cancellable = true)
+    private void irl$captureChar(long window, CharacterEvent input, CallbackInfo ci)
     {
         if (ImGuiInput.wantsKeyboard())
         {

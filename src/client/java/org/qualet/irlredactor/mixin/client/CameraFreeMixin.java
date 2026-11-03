@@ -1,14 +1,13 @@
 package org.qualet.irlredactor.mixin.client;
 
-import net.minecraft.client.render.Camera;
-import net.minecraft.entity.Entity;
-import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
+import net.minecraft.client.Camera;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
 import org.qualet.irlredactor.client.FreeCamera;
 
 /**
@@ -23,19 +22,19 @@ import org.qualet.irlredactor.client.FreeCamera;
 public abstract class CameraFreeMixin
 {
     @Shadow
-    protected abstract void setPos(double x, double y, double z);
+    protected abstract void setPosition(double x, double y, double z);
 
     @Inject(
         // 1.21.11: Camera.update's first parameter is World (was BlockView on 1.20.x).
-        method = "update(Lnet/minecraft/world/World;Lnet/minecraft/entity/Entity;ZZF)V",
+        method = "setup(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/Entity;ZZF)V",
         at = @At("TAIL"))
-    private void irl$freeCamera(World area, Entity focusedEntity, boolean thirdPerson,
+    private void irl$freeCamera(Level area, Entity focusedEntity, boolean thirdPerson,
                                 boolean inverseView, float tickDelta, CallbackInfo ci)
     {
         if (FreeCamera.isActive())
         {
             FreeCamera.advance();
-            this.setPos(FreeCamera.x(), FreeCamera.y(), FreeCamera.z());
+            this.setPosition(FreeCamera.x(), FreeCamera.y(), FreeCamera.z());
         }
     }
 }

@@ -1,11 +1,11 @@
 package org.qualet.irlredactor.mixin.client;
 
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.RenderTickCounter;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.renderer.GameRenderer;
 import org.qualet.irl.light.FramePipeline;
 import org.qualet.irl.light.iris.IrisShadersState;
 import org.qualet.irlredactor.client.diag.VlProfiler;
@@ -20,13 +20,13 @@ import org.qualet.irlredactor.light.LightDriver;
 @Mixin(GameRenderer.class)
 public class GameRendererLightMixin
 {
-    @Inject(method = "renderWorld", at = @At("HEAD"))
-    private void irlite$collectLights(RenderTickCounter tickCounter, CallbackInfo ci)
+    @Inject(method = "renderLevel", at = @At("HEAD"))
+    private void irlite$collectLights(DeltaTracker tickCounter, CallbackInfo ci)
     {
         // 1.21.11: renderWorld(RenderTickCounter) — the old (tickDelta, limitTime,
         // MatrixStack) parameters are gone, so derive the partial tick here
         // (ignoreFreeze=true matches the previous always-advancing behaviour).
-        float tickDelta = tickCounter.getTickProgress(true);
+        float tickDelta = tickCounter.getGameTimeDeltaPartialTick(true);
 
         // Dev GPU profiler (editor "perf" section): the shadow bake below runs
         // strictly before the Iris pass sequence, so its GL_TIME_ELAPSED bracket
@@ -57,13 +57,13 @@ public class GameRendererLightMixin
      * render state) — so collect+bake at HEAD always runs first, and the upload lands well before
      * {@code WorldRenderer.render} / Iris activation (offset ~502).</p>
      */
-    @Inject(method = "renderWorld",
+    @Inject(method = "renderLevel",
             at = @At(value = "INVOKE",
-                     target = "Lnet/minecraft/client/render/GameRenderer;updateCameraState(F)V",
+                     target = "Lnet/minecraft/client/renderer/GameRenderer;extractCamera(F)V",
                      shift = At.Shift.AFTER,
                      ordinal = 0),
             require = 1)
-    private void irlite$uploadLights(RenderTickCounter tickCounter, CallbackInfo ci)
+    private void irlite$uploadLights(DeltaTracker tickCounter, CallbackInfo ci)
     {
         FramePipeline.uploadIfPending();
     }
