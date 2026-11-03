@@ -6,6 +6,7 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -74,9 +75,17 @@ public class IRLRedactorClient implements ClientModInitializer
         // Dev GPU profiler (editor "perf" section): wire the core-side bake probe
         // and the HUD overlay unconditionally — every call is a cheap no-op until
         // the user flips the runtime toggle (VlProfiler.setCollecting).
-        // HUD rendering is registered through the 26.3 HUD element API (migrated separately).
-        // Free-fly camera "Speed x.x" indicator (no-op while the camera is off).
-        
+        // HUD indicators: the profiler overlay and free-camera speed readout.
+        // Fabric 26.3 uses extracted HUD render state rather than HudRenderCallback.
+        HudElementRegistry.addLast(
+            Identifier.fromNamespaceAndPath("irl-redactor", "diagnostics"),
+            (graphics, deltaTracker) ->
+            {
+                VlProfiler.renderHud(graphics);
+                FreeCamera.renderHud(graphics);
+            }
+        );
+
         ShadowEngine.installBakeProbe(new ShadowBakeProbe()
         {
             @Override
