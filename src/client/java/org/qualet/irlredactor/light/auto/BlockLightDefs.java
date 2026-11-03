@@ -4,7 +4,7 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.RedStoneWireBlock;
+import net.minecraft.world.level.block.RedstoneWireBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
@@ -115,7 +115,7 @@ public final class BlockLightDefs
         // Non-luminous special cases (vanilla getLuminance() == 0):
         if (state.is(Blocks.REDSTONE_WIRE))
         {
-            int power = state.getValue(RedStoneWireBlock.POWER);
+            int power = state.getValue(RedstoneWireBlock.POWER);
             return power > 0 ? REDSTONE_BY_POWER[power] : null;
         }
         return null;
