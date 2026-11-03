@@ -68,7 +68,14 @@ public final class RedactorPatcherHost implements PatcherHost
     @Override
     public void openFolder(Path dir)
     {
-        java.awt.Desktop.getDesktop().open(dir.toFile());
+        try
+        {
+            Util.getPlatform().openUri(dir.toUri());
+        }
+        catch (Throwable t)
+        {
+            LOG.warn("Could not open folder {}: {}", dir, t.toString());
+        }
     }
 
     @Override
