@@ -5,7 +5,7 @@ import java.util.Map;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.RedstoneWireBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -132,7 +132,7 @@ public final class BlockLightDefs
 
     private static Block candle(String id)
     {
-        return BuiltInRegistries.BLOCK.getValue(ResourceLocation.withDefaultNamespace(id));
+        return BuiltInRegistries.BLOCK.getValue(Identifier.withDefaultNamespace(id));
     }
 
     static
