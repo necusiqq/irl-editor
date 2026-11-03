@@ -1144,7 +1144,7 @@ public class LightEditorPanel
     private void drawGizmo()
     {
         Minecraft mc = Minecraft.getInstance();
-        Camera cam = mc.gameRenderer == null ? null : mc.gameRenderer.getMainCamera();
+        Camera cam = mc.gameRenderer == null ? null : mc.gameRenderer.mainCamera();
         if (cam == null || mc.level == null || mc.getWindow().getHeight() == 0)
         {
             return;
