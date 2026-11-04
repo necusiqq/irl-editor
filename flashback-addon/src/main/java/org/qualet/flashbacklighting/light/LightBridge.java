@@ -40,7 +40,10 @@ public final class LightBridge {
 
     public static void apply(UUID id,double x,double y,double z,float intensity,float radius,
             float dx,float dy,float dz,float red,float green,float blue,
-            boolean spot,float range,float outer,float inner) {
+            boolean spot,float range,float outer,float inner,float alpha,float beamStrength,
+            float anisotropy,float vlDensity,float bulbSize,boolean entitiesOnly,
+            boolean blocksOnly,boolean shadows,String cookie,float cookieRotation,
+            float cookieScale,boolean cookieInvert) {
         try {
             ensure();
             Object l=LIGHTS.get(id);
@@ -51,6 +54,18 @@ public final class LightBridge {
             field("intensity").setFloat(l,intensity); field("radius").setFloat(l,radius);
             field("dirX").setFloat(l,dx); field("dirY").setFloat(l,dy); field("dirZ").setFloat(l,dz);
             field("r").setFloat(l,clamp(red)); field("g").setFloat(l,clamp(green)); field("b").setFloat(l,clamp(blue));
+            field("a").setFloat(l,clamp(alpha));
+            field("beamStrength").setFloat(l,Math.max(0f,Math.min(5f,beamStrength)));
+            field("anisotropy").setFloat(l,Math.max(-0.95f,Math.min(0.95f,anisotropy)));
+            field("vlDensity").setFloat(l,Math.max(0.005f,Math.min(0.5f,vlDensity)));
+            field("bulbSize").setFloat(l,Math.max(0f,Math.min(2f,bulbSize)));
+            field("entitiesOnly").setBoolean(l,entitiesOnly);
+            field("blocksOnly").setBoolean(l,blocksOnly);
+            field("shadows").setBoolean(l,shadows);
+            field("cookie").set(l,cookie == null ? "" : cookie);
+            field("cookieRotation").setFloat(l,cookieRotation);
+            field("cookieScale").setFloat(l,Math.max(0.05f,Math.min(8f,cookieScale)));
+            field("cookieInvert").setBoolean(l,cookieInvert);
             field("range").setFloat(l,Math.max(0.1f,range));
             field("outerAngleDeg").setFloat(l,clampAngle(outer));
             field("innerAngleDeg").setFloat(l,Math.min(clampAngle(outer),clampAngle(inner)));
