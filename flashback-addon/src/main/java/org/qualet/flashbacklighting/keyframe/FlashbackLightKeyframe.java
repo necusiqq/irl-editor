@@ -17,6 +17,8 @@ public final class FlashbackLightKeyframe extends Keyframe {
     public float radius = 8.0f;
     public float dirX = 0.0f, dirY = -1.0f, dirZ = 0.0f;
     public float red = 1.0f, green = 1.0f, blue = 1.0f;
+    public boolean spot = false;
+    public float range = 12.0f, outerAngle = 35.0f, innerAngle = 25.0f;
 
     public FlashbackLightKeyframe() {}
 
@@ -31,12 +33,13 @@ public final class FlashbackLightKeyframe extends Keyframe {
         copy.lightId = this.lightId;
         copy.dirX = dirX; copy.dirY = dirY; copy.dirZ = dirZ;
         copy.red = red; copy.green = green; copy.blue = blue;
+        copy.spot = spot; copy.range = range; copy.outerAngle = outerAngle; copy.innerAngle = innerAngle;
         copy.interpolationType(interpolationType());
         return copy;
     }
     @Override public @Nullable KeyframeChange createChange() {
         return new FlashbackLightChange(lightId, x, y, z, intensity, radius,
-            dirX, dirY, dirZ, red, green, blue);
+            dirX, dirY, dirZ, red, green, blue, spot, range, outerAngle, innerAngle);
     }
 
     @Override
@@ -86,5 +89,13 @@ public final class FlashbackLightKeyframe extends Keyframe {
         if (ImGuiHelper.inputFloat("Green (0-1)", v)) update.accept(k -> ((FlashbackLightKeyframe) k).green = v[0]);
         v[0] = blue;
         if (ImGuiHelper.inputFloat("Blue (0-1)", v)) update.accept(k -> ((FlashbackLightKeyframe) k).blue = v[0]);
+        v[0] = spot ? 1.0f : 0.0f;
+        if (ImGuiHelper.inputFloat("Spot (0=Point, 1=Spot)", v)) update.accept(k -> ((FlashbackLightKeyframe) k).spot = v[0] >= 0.5f);
+        v[0] = range;
+        if (ImGuiHelper.inputFloat("Spot range", v)) update.accept(k -> ((FlashbackLightKeyframe) k).range = Math.max(0.1f, v[0]));
+        v[0] = outerAngle;
+        if (ImGuiHelper.inputFloat("Spot outer angle", v)) update.accept(k -> ((FlashbackLightKeyframe) k).outerAngle = Math.max(1.0f, Math.min(179.0f, v[0])));
+        v[0] = innerAngle;
+        if (ImGuiHelper.inputFloat("Spot inner angle", v)) update.accept(k -> ((FlashbackLightKeyframe) k).innerAngle = Math.max(1.0f, Math.min(outerAngle, v[0])));
     }
 }
