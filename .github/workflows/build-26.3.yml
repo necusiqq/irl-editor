@@ -1,4 +1,4 @@
-name: Build Minecraft 26.3 mod (VertexConsumer package correction)
+name: Build Minecraft 26.3 mod (Java 25)
 on:
   push:
     branches: [port/26.3]
@@ -24,6 +24,9 @@ jobs:
           distribution: temurin
           java-version: '25'
       - uses: gradle/actions/setup-gradle@v4
+      - name: Record core revision
+        working-directory: irl-core
+        run: git rev-parse HEAD
       - name: Publish core locally
         working-directory: irl-core
         run: bash ./gradlew publishToMavenLocal
@@ -36,3 +39,4 @@ jobs:
           name: irl-redactor-minecraft-26.3
           path: irl-editor/build/libs/*.jar
           if-no-files-found: error
+          retention-days: 14
