@@ -21,7 +21,11 @@ public final class ImGuiInput
 
     public static boolean wantsKeyboard()
     {
-        return active() && ImGui.getIO().getWantCaptureKeyboard();
+        // WantCaptureKeyboard may remain true for the whole overlay (for example,
+        // because of ImGui navigation focus), swallowing Minecraft keybinds such
+        // as the editor movement-mode toggle. Suppress game keys only while an
+        // actual ImGui item is active (notably InputText and interactive controls).
+        return active() && ImGui.isAnyItemActive();
     }
 
     /** Overlay drawing this frame AND ImGui ready — guards getIO() from asserting. */
