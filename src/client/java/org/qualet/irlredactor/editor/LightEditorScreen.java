@@ -18,7 +18,7 @@ import org.qualet.irlredactor.imgui.ImGuiRuntime;
  *       {@link #editorVisible}.</li>
  * </ul>
  *
- * <p>1.21.11: the ImGui overlay is NOT drawn from {@link #render}. The GUI pipeline
+ * <p>Minecraft 26.3: the ImGui overlay is NOT drawn from {@link #extractRenderState}. The GUI pipeline
  * is deferred (a {@code DrawContext} records commands that the {@code GuiRenderer}
  * flushes to the framebuffer AFTER {@code render} returns), so raw-GL ImGui drawn
  * there was immediately overwritten by Minecraft's own GUI (the "screen dims but
