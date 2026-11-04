@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "flashback_lighting_addon",
+  "version": "${version}",
+  "name": "Flashback Lighting Addon",
+  "description": "Adds animated IRL Redactor lights to Flashback replay timelines.",
+  "authors": ["qualet"],
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["org.qualet.flashbacklighting.FlashbackLightingAddon"]
+  },
+  "mixins": [
+    {
+      "config": "flashback-lighting-addon.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "~26.3",
+    "java": ">=25",
+    "fabric-api": "*",
+    "flashback": "=0.43.6",
+    "irl-redactor": "*"
+  }
+}
