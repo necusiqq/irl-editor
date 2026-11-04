@@ -14,6 +14,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.LevelResource;
 import org.lwjgl.opengl.GL30;
+import org.lwjgl.sdl.SDLKeyboard;
 import org.qualet.irl.light.IrlSamplers;
 import org.qualet.irl.light.shadow.RedactorEntityCasterSource;
 import org.qualet.irl.light.shadow.ShadowBakeProbe;
@@ -196,7 +197,7 @@ public class IRLRedactorClient implements ClientModInitializer
         boolean fcEdge = fcDown && !fcKeyWasDown;
         fcKeyWasDown = fcDown;
         boolean editorOpen = LightEditorScreen.isOverlayActive();
-        boolean movementModeDown = toggleMovementMode.isDown();
+        boolean movementModeDown = isMovementModeKeyDown();
         boolean movementModeEdge = movementModeDown && !movementModeKeyWasDown;
         movementModeKeyWasDown = movementModeDown;
         if (editorOpen && !ReplayCompat.inReplay() && movementModeEdge && !imguiWantsKeyboard())
@@ -296,6 +297,18 @@ public class IRLRedactorClient implements ClientModInitializer
                 }
             }
         }
+    }
+
+    /**
+     * Reads H directly from SDL instead of KeyMapping.isDown(). Minecraft 26.3
+     * routes keyboard input through SDL, and a host Screen can prevent the vanilla
+     * KeyMapping state from tracking keys while the editor is open.
+     * SDL_SCANCODE_H is 11 in SDL3.
+     */
+    private static boolean isMovementModeKeyDown()
+    {
+        java.nio.ByteBuffer keyboard = SDLKeyboard.SDL_GetKeyboardState();
+        return keyboard != null && keyboard.get(11) != 0;
     }
 
     /** True if ImGui is up and currently capturing keyboard input. */
