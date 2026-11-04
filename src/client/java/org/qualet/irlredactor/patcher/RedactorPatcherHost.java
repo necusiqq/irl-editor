@@ -2,11 +2,11 @@ package org.qualet.irlredactor.patcher;
 
 import net.fabricmc.loader.api.FabricLoader;
 import net.irisshaders.iris.Iris;
-import net.minecraft.util.Util;
 import org.qualet.irl.patcher.PatcherHost;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.Desktop;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
@@ -70,7 +70,12 @@ public final class RedactorPatcherHost implements PatcherHost
     {
         try
         {
-            Util.getPlatform().openUri(dir.toUri());
+            if (!Desktop.isDesktopSupported())
+            {
+                LOG.warn("Desktop folder opening is not supported on this system");
+                return;
+            }
+            Desktop.getDesktop().open(dir.toFile());
         }
         catch (Throwable t)
         {
