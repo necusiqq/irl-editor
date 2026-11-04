@@ -8,29 +8,26 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Draws the ImGui light editor on top of the finished frame.
+ * Draws the ImGui light editor after Minecraft has blitted the completed frame
+ * to the window surface, but immediately before that surface is presented.
  *
- * <p>1.21.11's GUI is rendered deferred (the screen records {@code DrawContext}
- * commands that the {@code GuiRenderer} flushes only after {@code Screen#render}
- * returns), so drawing raw-GL ImGui from the screen was overwritten by Minecraft's
- * own GUI. We instead hook {@code MinecraftClient#render} right after
- * {@code Framebuffer.blitToScreen()} — at that point the whole frame (world + GUI)
- * has been blitted to the default framebuffer and {@code swapBuffers} hasn't run
- * yet, so ImGui lands on top and is presented. The call is a cheap no-op unless a
- * {@link LightEditorScreen} is open.</p>
+ * <p>Minecraft 26.3 moved frame rendering out of the old runTick path and
+ * replaced the old framebuffer blit with the GpuSurface presentation flow.
+ * Hooking GpuSurface.present keeps the overlay on top of the already-rendered
+ * world and deferred GUI, while the window's back buffer is still available.</p>
  */
 @Mixin(Minecraft.class)
 public class MinecraftClientImGuiMixin
 {
     @Inject(
-        method = "runTick(Z)V",
+        method = "renderFrame(Z)V",
         at = @At(
             value = "INVOKE",
-            target = "Lcom/mojang/blaze3d/pipeline/RenderTarget;blitToScreen()V",
-            shift = At.Shift.AFTER
+            target = "Lcom/mojang/blaze3d/systems/GpuSurface;present()V",
+            shift = At.Shift.BEFORE
         )
     )
-    private void irl$renderImGuiOverlay(boolean tick, CallbackInfo ci)
+    private void irl$renderImGuiOverlay(boolean advanceGameTime, CallbackInfo ci)
     {
         LightEditorScreen.renderActiveOverlay();
     }
