@@ -10,7 +10,7 @@ public final class LightBridge {
     private static final Map<UUID,Object> LIGHTS = new HashMap<>();
     private static final Set<UUID> ACTIVE_THIS_FRAME = new HashSet<>();
     private static Constructor<?> ctor;
-    private static Method add, remove;
+    private static Method add, remove, all;
     private static Class<?> placedClass;
 
     private LightBridge() {}
@@ -20,7 +20,7 @@ public final class LightBridge {
     }
 
     public static void endFrame(KeyframeHandler handler) {
-        if (!(handler instanceof MinecraftKeyframeHandler) || LIGHTS.isEmpty()) return;
+        if (!(handler instanceof MinecraftKeyframeHandler)) return;
         try {
             ensure();
             Iterator<Map.Entry<UUID,Object>> iterator = LIGHTS.entrySet().iterator();
@@ -56,10 +56,11 @@ public final class LightBridge {
             field("innerAngleDeg").setFloat(l,Math.min(clampAngle(outer),clampAngle(inner)));
             @SuppressWarnings({"rawtypes","unchecked"}) Object type=Enum.valueOf((Class)field("type").getType(),spot?"SPOT":"POINT");
             field("type").set(l,type);
-            if (created) {
-                add.invoke(null,l);
-                LIGHTS.put(id,l);
-            }
+            if (created) LIGHTS.put(id,l);
+            // IRL Redactor can clear its scene independently (for example when
+            // its editor resets the placed-light list). Reattach our stable
+            // instance instead of silently losing the animated light.
+            if (!((List<?>) all.invoke(null)).contains(l)) add.invoke(null,l);
             ACTIVE_THIS_FRAME.add(id);
         } catch(ReflectiveOperationException|LinkageError e) {
             LOGGER.error("IRL Redactor light bridge failed",e);
@@ -92,5 +93,6 @@ public final class LightBridge {
         ctor=placedClass.getConstructor();
         add=scene.getMethod("add",placedClass);
         remove=scene.getMethod("remove",placedClass);
+        all=scene.getMethod("all");
     }
 }
