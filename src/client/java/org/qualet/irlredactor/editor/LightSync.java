@@ -99,5 +99,10 @@ public final class LightSync
 
         l.x = s.pos[0]; l.y = s.pos[1]; l.z = s.pos[2];
         l.dirX = s.dir[0]; l.dirY = s.dir[1]; l.dirZ = s.dir[2];
+
+        if (l.editListener != null)
+        {
+            l.editListener.accept(l);
+        }
     }
 }
