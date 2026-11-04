@@ -31,6 +31,9 @@ public class PlacedLight
      *  across a save/load cycle. */
     public final transient long id;
 
+    /** Optional editor callback used by external timeline integrations. */
+    public transient java.util.function.Consumer<PlacedLight> editListener;
+
     public Type type = Type.POINT;
 
     /** Editor-facing display name (used by the source list). Engine ignores it. */
