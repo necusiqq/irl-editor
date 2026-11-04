@@ -269,15 +269,18 @@ public class IRLRedactorClient implements ClientModInitializer
         }
         else
         {
-            // Left a replay with the overlay still up: drop it (normal world uses
-            // the host screen).
-            if (LightEditorScreen.isVisible())
-            {
-                LightEditorScreen.setVisible(false);
-            }
+            // In a normal world, J opens the host screen; if the detached
+            // movement-mode overlay is already open, J closes it.
             if (keybindPressed && client.gui.screen() == null)
             {
-                client.gui.setScreen(new LightEditorScreen());
+                if (LightEditorScreen.isVisible())
+                {
+                    LightEditorScreen.setVisible(false);
+                }
+                else
+                {
+                    client.gui.setScreen(new LightEditorScreen());
+                }
             }
         }
     }
