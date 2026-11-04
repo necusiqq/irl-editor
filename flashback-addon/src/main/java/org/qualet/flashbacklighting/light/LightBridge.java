@@ -3,55 +3,64 @@ package org.qualet.flashbacklighting.light;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
-/** Runtime bridge to IRL Redactor. Reflection keeps the addon binary independent
- * of IRL Redactor's implementation classes while the Fabric dependency enforces
- * that the mod is present. */
+/** Runtime bridge to IRL Redactor's client-side light scene. */
 public final class LightBridge {
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger("Flashback Lighting");
-    private static Object light;
-    private static boolean added;
+    private static final Map<UUID, Object> LIGHTS = new HashMap<>();
+
     private static Class<?> lightSceneClass;
+    private static Class<?> placedLightClass;
     private static Constructor<?> lightConstructor;
     private static Method addMethod, removeMethod;
     private static Field xField, yField, zField, intensityField, radiusField, nameField;
 
     private LightBridge() {}
 
-    public static void apply(double x, double y, double z, float intensity, float radius) {
+    public static void apply(UUID id, double x, double y, double z, float intensity, float radius) {
         try {
-            ensureLight();
+            ensureBridge();
+            Object light = LIGHTS.get(id);
+            if (light == null) {
+                light = lightConstructor.newInstance();
+                nameField.set(light, "Flashback Light");
+                LIGHTS.put(id, light);
+                addMethod.invoke(null, light);
+            }
             xField.setDouble(light, x);
             yField.setDouble(light, y);
             zField.setDouble(light, z);
             intensityField.setFloat(light, intensity);
             radiusField.setFloat(light, radius);
-            if (!added) {
-                addMethod.invoke(null, light);
-                added = true;
-            }
         } catch (ReflectiveOperationException | LinkageError e) {
             LOGGER.error("IRL Redactor light bridge failed", e);
         }
     }
 
+    /** Remove all addon-owned lights, e.g. when the replay world changes. */
     public static void remove() {
-        if (!added || light == null) return;
+        if (LIGHTS.isEmpty()) return;
         try {
-            removeMethod.invoke(null, light);
-        } catch (ReflectiveOperationException ignored) {
+            ensureBridge();
+            for (Object light : LIGHTS.values()) {
+                removeMethod.invoke(null, light);
+            }
+        } catch (ReflectiveOperationException | LinkageError e) {
+            LOGGER.error("Could not remove addon-owned IRL Redactor lights", e);
+        } finally {
+            LIGHTS.clear();
         }
-        added = false;
-        light = null;
     }
 
-    private static void ensureLight() throws ReflectiveOperationException {
-        if (light != null) return;
+    private static void ensureBridge() throws ReflectiveOperationException {
+        if (lightConstructor != null) return;
         ClassLoader loader = LightBridge.class.getClassLoader();
         lightSceneClass = Class.forName("org.qualet.irlredactor.light.LightScene", true, loader);
-        Class<?> placedLightClass = Class.forName("org.qualet.irlredactor.light.PlacedLight", true, loader);
+        placedLightClass = Class.forName("org.qualet.irlredactor.light.PlacedLight", true, loader);
         lightConstructor = placedLightClass.getConstructor();
-        light = lightConstructor.newInstance();
         addMethod = lightSceneClass.getMethod("add", placedLightClass);
         removeMethod = lightSceneClass.getMethod("remove", placedLightClass);
         xField = placedLightClass.getField("x");
@@ -60,6 +69,5 @@ public final class LightBridge {
         intensityField = placedLightClass.getField("intensity");
         radiusField = placedLightClass.getField("radius");
         nameField = placedLightClass.getField("name");
-        nameField.set(light, "Flashback Light");
     }
 }
