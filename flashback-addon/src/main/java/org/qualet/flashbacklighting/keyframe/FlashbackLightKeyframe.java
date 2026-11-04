@@ -4,12 +4,10 @@ import com.moulberry.flashback.editor.ui.ImGuiHelper;
 import com.moulberry.flashback.keyframe.Keyframe;
 import com.moulberry.flashback.keyframe.KeyframeType;
 import com.moulberry.flashback.keyframe.change.KeyframeChange;
-import net.minecraft.client.resources.language.I18n;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.UUID;
-import java.util.TreeMap;
 import java.util.function.Consumer;
 
 public final class FlashbackLightKeyframe extends Keyframe {
@@ -17,6 +15,8 @@ public final class FlashbackLightKeyframe extends Keyframe {
     public double x, y, z;
     public float intensity = 1.0f;
     public float radius = 8.0f;
+    public float dirX = 0.0f, dirY = -1.0f, dirZ = 0.0f;
+    public float red = 1.0f, green = 1.0f, blue = 1.0f;
 
     public FlashbackLightKeyframe() {}
 
@@ -29,11 +29,14 @@ public final class FlashbackLightKeyframe extends Keyframe {
     @Override public Keyframe copy() {
         FlashbackLightKeyframe copy = new FlashbackLightKeyframe(x, y, z, intensity, radius);
         copy.lightId = this.lightId;
+        copy.dirX = dirX; copy.dirY = dirY; copy.dirZ = dirZ;
+        copy.red = red; copy.green = green; copy.blue = blue;
         copy.interpolationType(interpolationType());
         return copy;
     }
     @Override public @Nullable KeyframeChange createChange() {
-        return new FlashbackLightChange(lightId, x, y, z, intensity, radius);
+        return new FlashbackLightChange(lightId, x, y, z, intensity, radius,
+            dirX, dirY, dirZ, red, green, blue);
     }
 
     @Override
@@ -71,5 +74,17 @@ public final class FlashbackLightKeyframe extends Keyframe {
         if (ImGuiHelper.inputFloat("Intensity", v)) update.accept(k -> ((FlashbackLightKeyframe) k).intensity = v[0]);
         v[0] = radius;
         if (ImGuiHelper.inputFloat("Radius", v)) update.accept(k -> ((FlashbackLightKeyframe) k).radius = v[0]);
+        v[0] = dirX;
+        if (ImGuiHelper.inputFloat("Direction X", v)) update.accept(k -> ((FlashbackLightKeyframe) k).dirX = v[0]);
+        v[0] = dirY;
+        if (ImGuiHelper.inputFloat("Direction Y", v)) update.accept(k -> ((FlashbackLightKeyframe) k).dirY = v[0]);
+        v[0] = dirZ;
+        if (ImGuiHelper.inputFloat("Direction Z", v)) update.accept(k -> ((FlashbackLightKeyframe) k).dirZ = v[0]);
+        v[0] = red;
+        if (ImGuiHelper.inputFloat("Red (0-1)", v)) update.accept(k -> ((FlashbackLightKeyframe) k).red = v[0]);
+        v[0] = green;
+        if (ImGuiHelper.inputFloat("Green (0-1)", v)) update.accept(k -> ((FlashbackLightKeyframe) k).green = v[0]);
+        v[0] = blue;
+        if (ImGuiHelper.inputFloat("Blue (0-1)", v)) update.accept(k -> ((FlashbackLightKeyframe) k).blue = v[0]);
     }
 }
