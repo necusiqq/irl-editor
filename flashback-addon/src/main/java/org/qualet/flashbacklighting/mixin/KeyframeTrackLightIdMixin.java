@@ -2,6 +2,7 @@ package org.qualet.flashbacklighting.mixin;
 
 import com.moulberry.flashback.keyframe.change.KeyframeChange;
 import com.moulberry.flashback.state.KeyframeTrack;
+import com.moulberry.flashback.state.RealTimeMapping;
 import org.qualet.flashbacklighting.keyframe.FlashbackLightChange;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
