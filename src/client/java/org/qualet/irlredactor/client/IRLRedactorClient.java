@@ -39,9 +39,10 @@ import java.nio.file.Path;
  * the {@link LightScene} is loaded when a world is joined and saved when it is left
  * (and whenever the editor closes), so a lighting setup is bound to its world.
  *
- * <p>The J key has two behaviours: in a normal world it opens the host
- * {@link LightEditorScreen}; inside a replay (Replay Mod) it toggles the editor as a
- * detached overlay via a raw GLFW read — see {@link #onEndClientTick}.</p>
+ * <p>The J key opens/closes the editor. In a normal world, H switches between the
+ * host screen (which blocks player movement and uses the free-fly camera) and a
+ * detached overlay (which lets the player move). Inside a replay (Replay Mod), J
+ * toggles the detached overlay via a raw key-state read — see {@link #onEndClientTick}.</p>
  */
 public class IRLRedactorClient implements ClientModInitializer
 {
