@@ -24,11 +24,11 @@ repositories {
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     // Flashback 0.43.6 for Minecraft 26.3. It remains a runtime dependency,
     // not bundled into this addon.
-    modImplementation "maven.modrinth:4das1Fjq:cV1pa0YV"
+    implementation "maven.modrinth:4das1Fjq:cV1pa0YV"
 }
 
 loom {
