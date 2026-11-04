@@ -83,6 +83,20 @@ public final class LightBridge {
         }
     }
 
+    public static Object getLight(UUID id) {
+        return LIGHTS.get(id);
+    }
+
+    public static void setEditListener(UUID id, java.util.function.Consumer<Object> listener) {
+        try {
+            ensure();
+            Object light = LIGHTS.get(id);
+            if (light != null) field("editListener").set(light, listener);
+        } catch (ReflectiveOperationException | LinkageError e) {
+            LOGGER.error("Could not bind the IRL editor to a Flashback light", e);
+        }
+    }
+
     private static Field field(String name) throws NoSuchFieldException { return placedClass.getField(name); }
 
     private static void ensure() throws ReflectiveOperationException {
