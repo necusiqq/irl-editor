@@ -9,6 +9,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.SubmitNodeStorage;
+import net.minecraft.client.renderer.SubmitNodeCollection;
+import net.minecraft.client.renderer.feature.phase.TranslucentFeatureRenderPhase;
 import net.minecraft.client.renderer.texture.UvMapping;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
@@ -296,6 +298,48 @@ public final class OccluderGeometryCapturer
 
         CaptureQueue(Capture capture)
         {
+            this.capture = capture;
+        }
+
+        /**
+         * Entity renderers submit body and layer models through order buckets.
+         * Return a capturing collection for every bucket, otherwise the normal
+         * SubmitNodeCollection would queue models for GPU rendering and bypass
+         * this queue's submitModel override.
+         */
+        @Override
+        public SubmitNodeCollection order(int order)
+        {
+            return new CaptureCollection(capture, super.seeThrough());
+        }
+
+        @Override
+        public <S> void submitModel(Model<? super S> model, S state, PoseStack matrices, RenderType renderLayer,
+                                    int light, int overlay, int tintedColor, UvMapping uvMapping, int outlineColor)
+        {
+            if (model == null)
+            {
+                return;
+            }
+            try
+            {
+                model.setupAnim(state);
+                model.renderToBuffer(matrices, capture, light, overlay, tintedColor);
+            }
+            catch (Throwable ignored)
+            {
+                // A failed model is omitted; the shadow bake continues.
+            }
+        }
+    }
+
+    private static final class CaptureCollection extends SubmitNodeCollection
+    {
+        private final Capture capture;
+
+        CaptureCollection(Capture capture, TranslucentFeatureRenderPhase seeThrough)
+        {
+            super(false, seeThrough);
             this.capture = capture;
         }
 
