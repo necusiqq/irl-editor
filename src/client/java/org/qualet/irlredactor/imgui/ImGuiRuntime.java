@@ -5,7 +5,7 @@ import imgui.ImFontConfig;
 import imgui.ImGui;
 import imgui.ImGuiIO;
 import imgui.gl3.ImGuiImplGl3;
-import imgui.glfw.ImGuiImplGlfw;
+import imgui.sdl3.ImGuiImplSdl3;
 import org.qualet.irlredactor.IRLRedactorMod;
 
 import java.io.File;
@@ -14,7 +14,7 @@ import java.io.InputStream;
 import net.minecraft.client.Minecraft;
 
 /**
- * Owns the ImGui context and the GLFW/GL3 backends. ImGui is rendered on top of
+ * Owns the ImGui context and the SDL3/GL3 backends. ImGui is rendered on top of
  * Minecraft's frame from a hosting {@code Screen}. Initialization is lazy (on the
  * first frame) so it runs on the render thread with a valid GL context, after
  * Minecraft has finished setting up its window and GLFW callbacks.
@@ -23,7 +23,7 @@ public final class ImGuiRuntime
 {
     private static ImGuiRuntime instance;
 
-    private final ImGuiImplGlfw implGlfw = new ImGuiImplGlfw();
+    private final ImGuiImplSdl3 implSdl3 = new ImGuiImplSdl3();
     private final ImGuiImplGl3 implGl3 = new ImGuiImplGl3();
     private boolean initialized;
 
@@ -50,6 +50,26 @@ public final class ImGuiRuntime
         return instance;
     }
 
+    /** Forward an SDL event already polled by Minecraft to the ImGui SDL3 backend. */
+    public static void processSdlEvent(long eventPointer)
+    {
+        ImGuiRuntime runtime = instance;
+        if (runtime == null || !runtime.initialized || runtime.disabled)
+        {
+            return;
+        }
+
+        try
+        {
+            runtime.implSdl3.processEvent(eventPointer);
+        }
+        catch (LinkageError e)
+        {
+            runtime.disabled = true;
+            IRLRedactorMod.LOGGER.warn("ImGui SDL3 backend failed while processing an SDL event; disabling the editor overlay.", e);
+        }
+    }
+
     private void ensureInit()
     {
         if (initialized)
@@ -69,10 +89,11 @@ public final class ImGuiRuntime
             EditorStyle.apply(ImGui.getStyle());
             loadFonts(io);
 
-            // chain Minecraft's existing GLFW callbacks. Routed through reflection for
-            // the same reason as the GL3 init below: another mod's imgui-java may win
-            // on the shared classpath and differ from ours only by return type.
-            invokeBackend(implGlfw, "init", new Class<?>[]{ long.class, boolean.class }, handle, true);
+            // Minecraft 26.3 uses SDL3, not GLFW. Bind ImGui to Minecraft's SDL_Window*.
+            if (!implSdl3.init(handle))
+            {
+                throw new IllegalStateException("Dear ImGui SDL3 backend initialization failed");
+            }
 
             // ImGuiImplGl3.init's return type drifted across imgui-java versions:
             // boolean in our bundled 1.89.0, void in the older build Axiom ships
@@ -216,7 +237,7 @@ public final class ImGuiRuntime
             // the first call; it must run before ImGui.newFrame() or ImGui asserts
             // "Font Atlas not built".
             implGl3.newFrame();
-            implGlfw.newFrame();
+            implSdl3.newFrame();
             ImGui.newFrame();
 
             ui.run();
@@ -245,7 +266,7 @@ public final class ImGuiRuntime
         }
 
         implGl3.shutdown();
-        implGlfw.shutdown();
+        implSdl3.shutdown();
         ImGui.destroyContext();
         initialized = false;
     }
