@@ -615,12 +615,18 @@ public class LightEditorPanel
                 fmt(state.dir[0]), fmt(state.dir[1]), fmt(state.dir[2])));
             if (Widgets.button("aim_look", Lang.t("irl-redactor.editor.aimLook"), ImGui.getContentRegionAvail().x, false))
             {
-                Vec3 look = playerLook();
-                if (look != null)
+                Vec3 target = lookedAtTarget();
+                if (target != null)
                 {
-                    state.dir[0] = (float) look.x;
-                    state.dir[1] = (float) look.y;
-                    state.dir[2] = (float) look.z;
+                    Vec3 lightPos = new Vec3(state.pos[0], state.pos[1], state.pos[2]);
+                    Vec3 direction = target.subtract(lightPos);
+                    if (direction.lengthSqr() > 1.0e-6)
+                    {
+                        direction = direction.normalize();
+                        state.dir[0] = (float) direction.x;
+                        state.dir[1] = (float) direction.y;
+                        state.dir[2] = (float) direction.z;
+                    }
                 }
             }
         }
@@ -1246,9 +1252,27 @@ public class LightEditorPanel
         return mc.player == null ? null : new Vec3(mc.player.getX(), mc.player.getEyeY(), mc.player.getZ());
     }
 
-    private static Vec3 playerLook()
+    /** Returns the actual block/entity under the crosshair, not the view vector. */
+    private static Vec3 lookedAtTarget()
     {
         Minecraft mc = Minecraft.getInstance();
-        return mc.player == null ? null : mc.player.getLookAngle();
+        if (mc.player == null)
+        {
+            return null;
+        }
+
+        net.minecraft.world.phys.HitResult hit = mc.hitResult;
+        if (hit != null && hit.getType() != net.minecraft.world.phys.HitResult.Type.MISS)
+        {
+            if (hit instanceof net.minecraft.world.phys.EntityHitResult entityHit)
+            {
+                net.minecraft.world.entity.Entity entity = entityHit.getEntity();
+                return new Vec3(entity.getX(), entity.getY() + entity.getEyeHeight() * 0.5, entity.getZ());
+            }
+            return hit.getLocation();
+        }
+
+        // If nothing is hit, use a point along the crosshair ray at the normal reach.
+        return mc.player.getEyePosition().add(mc.player.getLookAngle().scale(64.0));
     }
 }
