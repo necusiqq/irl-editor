@@ -1,87 +1,50 @@
 package org.qualet.flashbacklighting.light;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.lang.reflect.*;
+import java.util.*;
 
-/** Runtime bridge to IRL Redactor's client-side light scene. */
 public final class LightBridge {
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger("Flashback Lighting");
-    private static final Map<UUID, Object> LIGHTS = new HashMap<>();
-
-    private static Constructor<?> lightConstructor;
-    private static Method addMethod, removeMethod;
-    private static Field xField, yField, zField, intensityField, radiusField, nameField;
-    private static Field dirXField, dirYField, dirZField, redField, greenField, blueField;
-
+    private static final Map<UUID,Object> LIGHTS = new HashMap<>();
+    private static Constructor<?> ctor;
+    private static Method add, remove;
+    private static Field[] fields;
     private LightBridge() {}
 
-    public static void apply(UUID id, double x, double y, double z, float intensity, float radius,
-            float dirX, float dirY, float dirZ, float red, float green, float blue) {
+    public static void apply(UUID id,double x,double y,double z,float intensity,float radius,
+            float dx,float dy,float dz,float red,float green,float blue,
+            boolean spot,float range,float outer,float inner) {
         try {
-            ensureBridge();
-            Object light = LIGHTS.get(id);
-            if (light == null) {
-                light = lightConstructor.newInstance();
-                nameField.set(light, "Flashback Light");
-                LIGHTS.put(id, light);
-                addMethod.invoke(null, light);
-            }
-            xField.setDouble(light, x);
-            yField.setDouble(light, y);
-            zField.setDouble(light, z);
-            intensityField.setFloat(light, intensity);
-            radiusField.setFloat(light, radius);
-            dirXField.setFloat(light, dirX);
-            dirYField.setFloat(light, dirY);
-            dirZField.setFloat(light, dirZ);
-            redField.setFloat(light, clamp01(red));
-            greenField.setFloat(light, clamp01(green));
-            blueField.setFloat(light, clamp01(blue));
-        } catch (ReflectiveOperationException | LinkageError e) {
-            LOGGER.error("IRL Redactor light bridge failed", e);
-        }
+            ensure();
+            Object l=LIGHTS.get(id);
+            if(l==null){ l=ctor.newInstance(); field("name").set(l,"Flashback Light"); LIGHTS.put(id,l); add.invoke(null,l); }
+            field("x").setDouble(l,x); field("y").setDouble(l,y); field("z").setDouble(l,z);
+            field("intensity").setFloat(l,intensity); field("radius").setFloat(l,radius);
+            field("dirX").setFloat(l,dx); field("dirY").setFloat(l,dy); field("dirZ").setFloat(l,dz);
+            field("r").setFloat(l,clamp(red)); field("g").setFloat(l,clamp(green)); field("b").setFloat(l,clamp(blue));
+            field("range").setFloat(l,Math.max(0.1f,range));
+            field("outerAngleDeg").setFloat(l,clampAngle(outer));
+            field("innerAngleDeg").setFloat(l,Math.min(clampAngle(outer),clampAngle(inner)));
+            @SuppressWarnings({"rawtypes","unchecked"}) Object type=Enum.valueOf((Class)field("type").getType(),spot?"SPOT":"POINT");
+            field("type").set(l,type);
+        } catch(ReflectiveOperationException|LinkageError e){ LOGGER.error("IRL Redactor light bridge failed",e); }
     }
-
-    private static float clamp01(float value) {
-        return Math.max(0.0f, Math.min(1.0f, value));
+    private static float clamp(float v){return Math.max(0f,Math.min(1f,v));}
+    private static float clampAngle(float v){return Math.max(1f,Math.min(179f,v));}
+    public static void remove(){
+        if(LIGHTS.isEmpty()) return;
+        try { ensure(); for(Object l:LIGHTS.values()) remove.invoke(null,l); }
+        catch(ReflectiveOperationException|LinkageError e){LOGGER.error("Could not remove addon-owned lights",e);}
+        finally {LIGHTS.clear();}
     }
-
-    /** Remove all addon-owned lights, e.g. when the replay world changes. */
-    public static void remove() {
-        if (LIGHTS.isEmpty()) return;
-        try {
-            ensureBridge();
-            for (Object light : LIGHTS.values()) removeMethod.invoke(null, light);
-        } catch (ReflectiveOperationException | LinkageError e) {
-            LOGGER.error("Could not remove addon-owned IRL Redactor lights", e);
-        } finally {
-            LIGHTS.clear();
-        }
-    }
-
-    private static void ensureBridge() throws ReflectiveOperationException {
-        if (lightConstructor != null) return;
-        ClassLoader loader = LightBridge.class.getClassLoader();
-        Class<?> scene = Class.forName("org.qualet.irlredactor.light.LightScene", true, loader);
-        Class<?> placed = Class.forName("org.qualet.irlredactor.light.PlacedLight", true, loader);
-        lightConstructor = placed.getConstructor();
-        addMethod = scene.getMethod("add", placed);
-        removeMethod = scene.getMethod("remove", placed);
-        xField = placed.getField("x");
-        yField = placed.getField("y");
-        zField = placed.getField("z");
-        intensityField = placed.getField("intensity");
-        radiusField = placed.getField("radius");
-        nameField = placed.getField("name");
-        dirXField = placed.getField("dirX");
-        dirYField = placed.getField("dirY");
-        dirZField = placed.getField("dirZ");
-        redField = placed.getField("r");
-        greenField = placed.getField("g");
-        blueField = placed.getField("b");
+    private static Field field(String name) throws NoSuchFieldException { return fieldsField(name); }
+    private static Field fieldsField(String name) throws NoSuchFieldException { return placedClass.getField(name); }
+    private static Class<?> placedClass;
+    private static void ensure() throws ReflectiveOperationException {
+        if(ctor!=null)return;
+        ClassLoader cl=LightBridge.class.getClassLoader();
+        Class<?> scene=Class.forName("org.qualet.irlredactor.light.LightScene",true,cl);
+        placedClass=Class.forName("org.qualet.irlredactor.light.PlacedLight",true,cl);
+        ctor=placedClass.getConstructor(); add=scene.getMethod("add",placedClass); remove=scene.getMethod("remove",placedClass);
     }
 }
