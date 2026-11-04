@@ -49,9 +49,7 @@ import net.minecraft.world.entity.Entity;
  * EntityRenderManager.render}'s matrix narrows to float, keeping sub-block precision
  * at large world coordinates. {@code ModelPart}/{@code quad} hand the consumer
  * positions already transformed by the matrix, so the consumer applies no matrix of
- * its own. (The dead {@link #captureCutoutBlockTris} helper still pre-translates to
- * the absolute block origin; it has no caller on this line — the live cutout bake is
- * core {@code ShadowRenderer}'s.)</p>
+ * its own. The live cutout bake is handled by core {@code ShadowRenderer}.</p>
  *
  * <p>Single-threaded (render thread); one shared {@link Capture} + {@link CaptureQueue}.</p>
  */
