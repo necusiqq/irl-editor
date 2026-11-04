@@ -8,13 +8,12 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Draws the ImGui light editor after Minecraft has blitted the completed frame
- * to the window surface, but immediately before that surface is presented.
+ * Draws the ImGui light editor immediately before the acquired window surface
+ * is presented, after Minecraft has blitted the completed frame to it.
  *
- * <p>Minecraft 26.3 moved frame rendering out of the old runTick path and
- * replaced the old framebuffer blit with the GpuSurface presentation flow.
- * Hooking GpuSurface.present keeps the overlay on top of the already-rendered
- * world and deferred GUI, while the window's back buffer is still available.</p>
+ * <p>In Minecraft 26.3, GpuSurface is
+ * {@code com.mojang.renderpearl.api.device.GpuSurface}. Keep this injection
+ * aligned with the actual owner used by Minecraft's renderFrame bytecode.</p>
  */
 @Mixin(Minecraft.class)
 public class MinecraftClientImGuiMixin
@@ -23,7 +22,7 @@ public class MinecraftClientImGuiMixin
         method = "renderFrame(Z)V",
         at = @At(
             value = "INVOKE",
-            target = "Lcom/mojang/blaze3d/systems/GpuSurface;present()V",
+            target = "Lcom/mojang/renderpearl/api/device/GpuSurface;present()V",
             shift = At.Shift.BEFORE
         )
     )
