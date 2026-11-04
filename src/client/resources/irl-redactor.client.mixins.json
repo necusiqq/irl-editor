@@ -6,6 +6,7 @@
   "client": [
     "GameRendererLightMixin",
     "MinecraftClientImGuiMixin",
+    "SDLEventImGuiMixin",
     "MouseImGuiMixin",
     "KeyboardImGuiMixin",
     "WorldBlockChangeMixin",
