@@ -41,6 +41,10 @@ public abstract class KeyframeTrackLightIdMixin {
             lightChange.dirX(), lightChange.dirY(), lightChange.dirZ(),
             lightChange.red(), lightChange.green(), lightChange.blue(),
             lightChange.spot(), lightChange.range(),
-            lightChange.outerAngle(), lightChange.innerAngle()));
+            lightChange.outerAngle(), lightChange.innerAngle(),
+            lightChange.alpha(), lightChange.beamStrength(), lightChange.anisotropy(),
+            lightChange.vlDensity(), lightChange.bulbSize(), lightChange.entitiesOnly(),
+            lightChange.blocksOnly(), lightChange.shadows(), lightChange.cookie(),
+            lightChange.cookieRotation(), lightChange.cookieScale(), lightChange.cookieInvert()));
     }
 }
