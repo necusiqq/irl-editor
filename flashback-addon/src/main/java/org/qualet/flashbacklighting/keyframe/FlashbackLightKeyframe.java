@@ -8,10 +8,12 @@ import net.minecraft.client.resources.language.I18n;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
+import java.util.UUID;
 import java.util.TreeMap;
 import java.util.function.Consumer;
 
 public final class FlashbackLightKeyframe extends Keyframe {
+    public UUID lightId = UUID.randomUUID();
     public double x, y, z;
     public float intensity = 1.0f;
     public float radius = 8.0f;
@@ -26,11 +28,12 @@ public final class FlashbackLightKeyframe extends Keyframe {
     @Override public KeyframeType<?> keyframeType() { return FlashbackLightKeyframeType.INSTANCE; }
     @Override public Keyframe copy() {
         FlashbackLightKeyframe copy = new FlashbackLightKeyframe(x, y, z, intensity, radius);
+        copy.lightId = this.lightId;
         copy.interpolationType(interpolationType());
         return copy;
     }
     @Override public @Nullable KeyframeChange createChange() {
-        return new FlashbackLightChange(x, y, z, intensity, radius);
+        return new FlashbackLightChange(lightId, x, y, z, intensity, radius);
     }
 
     @Override
