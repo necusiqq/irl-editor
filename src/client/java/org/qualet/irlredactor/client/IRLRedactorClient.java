@@ -47,6 +47,7 @@ public class IRLRedactorClient implements ClientModInitializer
 {
     private static KeyMapping openEditor;
     private static KeyMapping freeCamera;
+    private static KeyMapping toggleMovementMode;
 
     /** Keybind category. 1.21.11 replaced the plain String category with a
      *  registered {@link KeyMapping.Category} keyed by an Identifier. */
@@ -61,6 +62,9 @@ public class IRLRedactorClient implements ClientModInitializer
 
     /** Previous raw (GLFW) state of the free-camera bind, for front-edge detection. */
     private static boolean fcKeyWasDown;
+
+    /** Previous state of the editor movement-mode toggle (default H). */
+    private static boolean movementModeKeyWasDown;
 
     /** Previous editor-open state, to enable the free camera the moment it opens. */
     private static boolean fcEditorWasOpen;
@@ -126,6 +130,13 @@ public class IRLRedactorClient implements ClientModInitializer
             CATEGORY
         ));
 
+        toggleMovementMode = KeyMappingHelper.registerKeyMapping(new KeyMapping(
+            "key.irl-redactor.toggle_movement_mode",
+            InputConstants.Type.KEYBOARD,
+            InputConstants.KEY_H,
+            CATEGORY
+        ));
+
         // In-world light guides (gated by LightConfig.showGuides).
         LightGuideRenderer.register();
 
@@ -181,6 +192,24 @@ public class IRLRedactorClient implements ClientModInitializer
         boolean fcEdge = fcDown && !fcKeyWasDown;
         fcKeyWasDown = fcDown;
         boolean editorOpen = LightEditorScreen.isOverlayActive();
+        boolean movementModeDown = toggleMovementMode.isDown();
+        boolean movementModeEdge = movementModeDown && !movementModeKeyWasDown;
+        movementModeKeyWasDown = movementModeDown;
+        if (editorOpen && !ReplayCompat.inReplay() && movementModeEdge && !imguiWantsKeyboard())
+        {
+            // Switch between a normal host Screen (WASD blocked) and a detached
+            // ImGui overlay (game input remains available unless a text field owns it).
+            if (client.gui.screen() instanceof LightEditorScreen)
+            {
+                client.gui.setScreen(null);
+                LightEditorScreen.setVisible(true);
+            }
+            else if (LightEditorScreen.isVisible())
+            {
+                LightEditorScreen.setVisible(false);
+                client.gui.setScreen(new LightEditorScreen());
+            }
+        }
         if (editorOpen)
         {
             // Enable by default the first tick the editor is open.
