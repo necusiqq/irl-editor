@@ -25,7 +25,13 @@ public final class FlashbackLightKeyframeType implements KeyframeType<FlashbackL
         Entity camera = Minecraft.getInstance().getCameraEntity();
         if (camera == null) camera = Minecraft.getInstance().player;
         if (camera == null) return null;
-        return new FlashbackLightKeyframe(camera.getX(), camera.getY(), camera.getZ(), 1.0f, 8.0f);
+        FlashbackLightKeyframe keyframe = new FlashbackLightKeyframe(
+            camera.getX(), camera.getY() + camera.getEyeHeight(), camera.getZ(), 1.0f, 8.0f);
+        var look = camera.getLookAngle();
+        keyframe.dirX = (float) look.x;
+        keyframe.dirY = (float) look.y;
+        keyframe.dirZ = (float) look.z;
+        return keyframe;
     }
 
     @Override public KeyframeCreatePopup<FlashbackLightKeyframe> createPopup() { return null; }
