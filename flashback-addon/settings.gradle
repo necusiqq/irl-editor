@@ -6,17 +6,4 @@ pluginManagement {
     }
 }
 
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        exclusiveContent {
-            forRepository {
-                maven { name = 'Modrinth'; url = 'https://api.modrinth.com/maven' }
-            }
-            filter { includeGroup 'maven.modrinth' }
-        }
-        mavenCentral()
-    }
-}
-
 rootProject.name = 'flashback-lighting-addon'
