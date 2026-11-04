@@ -1,7 +1,5 @@
 package org.qualet.flashbacklighting.light;
 
-import net.minecraft.client.Minecraft;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -10,6 +8,7 @@ import java.lang.reflect.Method;
  * of IRL Redactor's implementation classes while the Fabric dependency enforces
  * that the mod is present. */
 public final class LightBridge {
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger("Flashback Lighting");
     private static Object light;
     private static boolean added;
     private static Class<?> lightSceneClass;
@@ -32,10 +31,7 @@ public final class LightBridge {
                 added = true;
             }
         } catch (ReflectiveOperationException | LinkageError e) {
-            if (Minecraft.getInstance().player != null) {
-                Minecraft.getInstance().player.displayClientMessage(
-                    net.minecraft.network.chat.Component.literal("Flashback Lighting: IRL Redactor bridge failed: " + e.getClass().getSimpleName()), true);
-            }
+            LOGGER.error("IRL Redactor light bridge failed", e);
         }
     }
 
