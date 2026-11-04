@@ -23,7 +23,10 @@ public final class FlashbackLightEditorBridge {
             UUID id = trackId(track);
             LightBridge.apply(id, keyframe.x, keyframe.y, keyframe.z, keyframe.intensity, keyframe.radius,
                 keyframe.dirX, keyframe.dirY, keyframe.dirZ, keyframe.red, keyframe.green, keyframe.blue,
-                keyframe.spot, keyframe.range, keyframe.outerAngle, keyframe.innerAngle);
+                keyframe.spot, keyframe.range, keyframe.outerAngle, keyframe.innerAngle,
+                keyframe.alpha, keyframe.beamStrength, keyframe.anisotropy, keyframe.vlDensity,
+                keyframe.bulbSize, keyframe.entitiesOnly, keyframe.blocksOnly, keyframe.shadows,
+                keyframe.cookie, keyframe.cookieRotation, keyframe.cookieScale, keyframe.cookieInvert);
             Object light = LightBridge.getLight(id);
             if (light == null) return;
 
@@ -40,6 +43,18 @@ public final class FlashbackLightEditorBridge {
                 changed |= set(keyframe, "red", number(edited, "r").floatValue());
                 changed |= set(keyframe, "green", number(edited, "g").floatValue());
                 changed |= set(keyframe, "blue", number(edited, "b").floatValue());
+                changed |= set(keyframe, "alpha", number(edited, "a").floatValue());
+                changed |= set(keyframe, "beamStrength", number(edited, "beamStrength").floatValue());
+                changed |= set(keyframe, "anisotropy", number(edited, "anisotropy").floatValue());
+                changed |= set(keyframe, "vlDensity", number(edited, "vlDensity").floatValue());
+                changed |= set(keyframe, "bulbSize", number(edited, "bulbSize").floatValue());
+                changed |= set(keyframe, "entitiesOnly", read(edited, "entitiesOnly"));
+                changed |= set(keyframe, "blocksOnly", read(edited, "blocksOnly"));
+                changed |= set(keyframe, "shadows", read(edited, "shadows"));
+                changed |= set(keyframe, "cookie", read(edited, "cookie"));
+                changed |= set(keyframe, "cookieRotation", number(edited, "cookieRotation").floatValue());
+                changed |= set(keyframe, "cookieScale", number(edited, "cookieScale").floatValue());
+                changed |= set(keyframe, "cookieInvert", read(edited, "cookieInvert"));
                 changed |= set(keyframe, "spot", "SPOT".equals(String.valueOf(read(edited, "type"))));
                 changed |= set(keyframe, "range", number(edited, "range").floatValue());
                 changed |= set(keyframe, "outerAngle", number(edited, "outerAngleDeg").floatValue());
