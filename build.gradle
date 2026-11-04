@@ -46,7 +46,7 @@ repositories {
 
 // Dear ImGui (imgui-java by SpaiR). The editor GUI is rendered with ImGui, fully
 // decoupled from Minecraft's own GUI system and from BBS.
-def imguiVersion = '1.89.0'
+def imguiVersion = '1.92.0'
 
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
