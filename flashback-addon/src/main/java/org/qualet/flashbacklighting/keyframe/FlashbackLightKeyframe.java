@@ -96,6 +96,6 @@ public final class FlashbackLightKeyframe extends Keyframe {
         v[0] = outerAngle;
         if (ImGuiHelper.inputFloat("Spot outer angle", v)) update.accept(k -> ((FlashbackLightKeyframe) k).outerAngle = Math.max(1.0f, Math.min(179.0f, v[0])));
         v[0] = innerAngle;
-        if (ImGuiHelper.inputFloat("Spot inner angle", v)) update.accept(k -> ((FlashbackLightKeyframe) k).innerAngle = Math.max(1.0f, Math.min(outerAngle, v[0])));
+        if (ImGuiHelper.inputFloat("Spot inner angle", v)) update.accept(k -> ((FlashbackLightKeyframe) k).innerAngle = Math.max(1.0f, Math.min(((FlashbackLightKeyframe) k).outerAngle, v[0])));
     }
 }
