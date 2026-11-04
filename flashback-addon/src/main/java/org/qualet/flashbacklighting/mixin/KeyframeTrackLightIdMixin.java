@@ -19,6 +19,13 @@ public abstract class KeyframeTrackLightIdMixin {
     @Unique
     private static final Map<KeyframeTrack, UUID> flashbackLighting$trackIds = new WeakHashMap<>();
 
+    @Unique
+    public static UUID flashbackLighting$getTrackId(KeyframeTrack track) {
+        synchronized (flashbackLighting$trackIds) {
+            return flashbackLighting$trackIds.computeIfAbsent(track, ignored -> UUID.randomUUID());
+        }
+    }
+
     @Inject(method = "createKeyframeChange", at = @At("RETURN"), cancellable = true)
     private void flashbackLighting$useTrackId(float tick, RealTimeMapping mapping,
             CallbackInfoReturnable<KeyframeChange> cir) {
@@ -26,10 +33,7 @@ public abstract class KeyframeTrackLightIdMixin {
         if (!(change instanceof FlashbackLightChange lightChange)) return;
 
         KeyframeTrack track = (KeyframeTrack) (Object) this;
-        UUID id;
-        synchronized (flashbackLighting$trackIds) {
-            id = flashbackLighting$trackIds.computeIfAbsent(track, ignored -> UUID.randomUUID());
-        }
+        UUID id = flashbackLighting$getTrackId(track);
 
         cir.setReturnValue(new FlashbackLightChange(id,
             lightChange.x(), lightChange.y(), lightChange.z(),
