@@ -66,6 +66,9 @@ public class IRLRedactorClient implements ClientModInitializer
     /** Previous state of the editor movement-mode toggle (default H). */
     private static boolean movementModeKeyWasDown;
 
+    /** Whether free-fly was active before entering player-movement overlay mode. */
+    private static boolean resumeFreeCameraAfterMovementMode;
+
     /** Previous editor-open state, to enable the free camera the moment it opens. */
     private static boolean fcEditorWasOpen;
 
@@ -201,6 +204,10 @@ public class IRLRedactorClient implements ClientModInitializer
             // ImGui overlay (game input remains available unless a text field owns it).
             if (client.gui.screen() instanceof LightEditorScreen)
             {
+                // The editor normally starts in free-fly, which pins the player.
+                // Turn it off so detached-overlay mode really lets the player move.
+                resumeFreeCameraAfterMovementMode = FreeCamera.isActive();
+                FreeCamera.disable();
                 client.gui.setScreen(null);
                 LightEditorScreen.setVisible(true);
             }
@@ -208,6 +215,11 @@ public class IRLRedactorClient implements ClientModInitializer
             {
                 LightEditorScreen.setVisible(false);
                 client.gui.setScreen(new LightEditorScreen());
+                if (resumeFreeCameraAfterMovementMode && !FreeCamera.isActive())
+                {
+                    FreeCamera.toggle();
+                }
+                resumeFreeCameraAfterMovementMode = false;
             }
         }
         if (editorOpen)
