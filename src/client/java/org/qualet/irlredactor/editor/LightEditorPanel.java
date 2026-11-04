@@ -501,6 +501,17 @@ public class LightEditorPanel
     }
 
     /** Pull engine -> UI once whenever the selection identity changes. */
+    /** Selects a light supplied by an external editor integration. */
+    public void selectExternalLight(PlacedLight light)
+    {
+        if (light != null && LightScene.all().contains(light))
+        {
+            selected = light;
+            syncedId = 0L;
+            inspectorTab = TAB_PLACEMENT;
+        }
+    }
+
     private void syncSelection()
     {
         // Drop a selection that no longer exists (world reload / external clear),
