@@ -89,8 +89,10 @@ public final class FlashbackLightKeyframe extends Keyframe {
         if (ImGuiHelper.inputFloat("Green (0-1)", v)) update.accept(k -> ((FlashbackLightKeyframe) k).green = v[0]);
         v[0] = blue;
         if (ImGuiHelper.inputFloat("Blue (0-1)", v)) update.accept(k -> ((FlashbackLightKeyframe) k).blue = v[0]);
-        v[0] = spot ? 1.0f : 0.0f;
-        if (ImGuiHelper.inputFloat("Spot (0=Point, 1=Spot)", v)) update.accept(k -> ((FlashbackLightKeyframe) k).spot = v[0] >= 0.5f);
+        int[] lightType = { spot ? 1 : 0 };
+        if (ImGuiHelper.combo("Light type", lightType, new String[] { "Point", "Spot" })) {
+            update.accept(k -> ((FlashbackLightKeyframe) k).spot = lightType[0] == 1);
+        }
         v[0] = range;
         if (ImGuiHelper.inputFloat("Spot range", v)) update.accept(k -> ((FlashbackLightKeyframe) k).range = Math.max(0.1f, v[0]));
         v[0] = outerAngle;
