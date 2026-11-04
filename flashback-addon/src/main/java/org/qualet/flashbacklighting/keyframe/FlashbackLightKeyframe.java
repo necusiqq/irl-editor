@@ -36,8 +36,9 @@ public final class FlashbackLightKeyframe extends Keyframe {
     @Override
     public @Nullable KeyframeChange createSmoothInterpolatedChange(Keyframe p1, Keyframe p2, Keyframe p3,
             float t0, float t1, float t2, float t3, float amount) {
-        FlashbackLightKeyframe next = (FlashbackLightKeyframe) p2;
-        return createChange().interpolate(next.createChange(), amount);
+        FlashbackLightKeyframe from = (FlashbackLightKeyframe) p1;
+        FlashbackLightKeyframe to = (FlashbackLightKeyframe) p2;
+        return from.createChange().interpolate(to.createChange(), amount);
     }
 
     @Override
