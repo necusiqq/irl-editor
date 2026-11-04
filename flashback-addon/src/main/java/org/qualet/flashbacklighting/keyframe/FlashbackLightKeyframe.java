@@ -19,6 +19,12 @@ public final class FlashbackLightKeyframe extends Keyframe {
     public float red = 1.0f, green = 1.0f, blue = 1.0f;
     public boolean spot = false;
     public float range = 12.0f, outerAngle = 35.0f, innerAngle = 25.0f;
+    public float alpha = 1.0f;
+    public float beamStrength = 1.0f, anisotropy = 0.4f, vlDensity = 0.05f, bulbSize = 0.0f;
+    public boolean entitiesOnly = false, blocksOnly = false, shadows = true;
+    public String cookie = "";
+    public float cookieRotation = 0.0f, cookieScale = 1.0f;
+    public boolean cookieInvert = false;
 
     public FlashbackLightKeyframe() {}
 
@@ -34,12 +40,19 @@ public final class FlashbackLightKeyframe extends Keyframe {
         copy.dirX = dirX; copy.dirY = dirY; copy.dirZ = dirZ;
         copy.red = red; copy.green = green; copy.blue = blue;
         copy.spot = spot; copy.range = range; copy.outerAngle = outerAngle; copy.innerAngle = innerAngle;
+        copy.alpha = alpha; copy.beamStrength = beamStrength; copy.anisotropy = anisotropy;
+        copy.vlDensity = vlDensity; copy.bulbSize = bulbSize;
+        copy.entitiesOnly = entitiesOnly; copy.blocksOnly = blocksOnly; copy.shadows = shadows;
+        copy.cookie = cookie; copy.cookieRotation = cookieRotation; copy.cookieScale = cookieScale;
+        copy.cookieInvert = cookieInvert;
         copy.interpolationType(interpolationType());
         return copy;
     }
     @Override public @Nullable KeyframeChange createChange() {
         return new FlashbackLightChange(lightId, x, y, z, intensity, radius,
-            dirX, dirY, dirZ, red, green, blue, spot, range, outerAngle, innerAngle);
+            dirX, dirY, dirZ, red, green, blue, spot, range, outerAngle, innerAngle,
+            alpha, beamStrength, anisotropy, vlDensity, bulbSize, entitiesOnly, blocksOnly,
+            shadows, cookie, cookieRotation, cookieScale, cookieInvert);
     }
 
     @Override
