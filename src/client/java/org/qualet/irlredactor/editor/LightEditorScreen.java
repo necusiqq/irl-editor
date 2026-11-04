@@ -96,6 +96,13 @@ public class LightEditorScreen extends Screen
         setVisible(!editorVisible);
     }
 
+    /** Opens the detached editor and focuses a light selected by an external timeline. */
+    public static void openForLight(org.qualet.irlredactor.light.PlacedLight light)
+    {
+        PANEL.selectExternalLight(light);
+        setVisible(true);
+    }
+
     public static void setVisible(boolean visible)
     {
         if (editorVisible && !visible)
