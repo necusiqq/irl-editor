@@ -4,7 +4,8 @@
   "compatibilityLevel": "JAVA_25",
   "client": [
     "KeyframeTypeAdapterMixin",
-    "KeyframeLifecycleMixin"
+    "KeyframeLifecycleMixin",
+    "KeyframeTrackLightIdMixin"
   ],
   "injectors": {
     "defaultRequire": 1
