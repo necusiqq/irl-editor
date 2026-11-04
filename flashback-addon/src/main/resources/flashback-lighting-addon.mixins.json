@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "org.qualet.flashbacklighting.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "KeyframeTypeAdapterMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
