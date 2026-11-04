@@ -12,8 +12,8 @@ import org.qualet.irlredactor.light.LightDriver;
 
 /**
  * Per-frame entry point for the light + shadow pipeline.
- * Minecraft 26.3's renderLevel method has no parameters, so both callbacks
- * intentionally accept only CallbackInfo.
+ * Minecraft 26.3's renderLevel method has no parameters, so the callback
+ * intentionally accepts only CallbackInfo.
  */
 @Mixin(GameRenderer.class)
 public class GameRendererLightMixin
@@ -21,8 +21,8 @@ public class GameRendererLightMixin
     @Inject(method = "renderLevel()V", at = @At("HEAD"))
     private void irlite$collectLights(CallbackInfo ci)
     {
-        // 26.3 renderLevel() has no tick counter parameter. Use the current
-        // frame's partial tick supplied by the client timer.
+        // 26.3 renderLevel() runs after extract() has already updated the camera.
+        // Use the current frame's partial tick supplied by the client timer.
         float tickDelta = net.minecraft.client.Minecraft.getInstance()
             .getDeltaTracker().getGameTimeDeltaPartialTick(true);
 
@@ -40,24 +40,9 @@ public class GameRendererLightMixin
         FramePipeline.frame(tickDelta, IrisShadersState::shadersDisabled, LightDriver::collect,
             LightDriver::resetAutoShadowRamp);
         VlProfiler.endPass();
-    }
 
-    /**
-     * Deferred SSBO upload — the light buffer is made relative to the current-frame eye
-     * that the shaderpack reconstructs fragments against, not a stale camera.
-     *
-     * <p>The upload is deferred to a strictly-later bytecode point than the HEAD collect —
-     * right after extractCamera(DeltaTracker, float), so collect+bake at HEAD always runs first and the upload
-     * lands before world rendering / Iris activation.</p>
-     */
-    @Inject(method = "renderLevel()V",
-            at = @At(value = "INVOKE",
-                     target = "Lnet/minecraft/client/renderer/GameRenderer;extractCamera(Lnet/minecraft/client/DeltaTracker;F)V",
-                     shift = At.Shift.AFTER,
-                     ordinal = 0),
-            require = 1)
-    private void irlite$uploadLights(CallbackInfo ci)
-    {
+        // Camera extraction happens in GameRenderer.extract(), before renderLevel().
+        // Upload here: collection has completed and the world render has not started.
         FramePipeline.uploadIfPending();
     }
 }
