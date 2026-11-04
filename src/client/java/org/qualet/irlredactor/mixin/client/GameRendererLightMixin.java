@@ -47,12 +47,12 @@ public class GameRendererLightMixin
      * that the shaderpack reconstructs fragments against, not a stale camera.
      *
      * <p>The upload is deferred to a strictly-later bytecode point than the HEAD collect —
-     * right after extractCamera(F), so collect+bake at HEAD always runs first and the upload
+     * right after extractCamera(DeltaTracker, float), so collect+bake at HEAD always runs first and the upload
      * lands before world rendering / Iris activation.</p>
      */
     @Inject(method = "renderLevel()V",
             at = @At(value = "INVOKE",
-                     target = "Lnet/minecraft/client/renderer/GameRenderer;extractCamera(F)V",
+                     target = "Lnet/minecraft/client/renderer/GameRenderer;extractCamera(Lnet/minecraft/client/DeltaTracker;F)V",
                      shift = At.Shift.AFTER,
                      ordinal = 0),
             require = 1)
