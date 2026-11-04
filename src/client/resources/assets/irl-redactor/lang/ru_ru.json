@@ -1,6 +1,7 @@
 {
     "key.irl-redactor.open_editor": "Открыть редактор света",
     "key.irl-redactor.free_camera": "Свободная камера",
+    "key.irl-redactor.toggle_movement_mode": "Переключить режим движения в редакторе",
     "category.irl-redactor": "IRL Redactor",
 
     "irl-redactor.editor.sources": "ИСТОЧНИКИ",
