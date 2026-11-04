@@ -1,7 +1,6 @@
 package org.qualet.irlredactor.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import imgui.ImGui;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
@@ -23,6 +22,7 @@ import org.qualet.irl.patcher.Patcher;
 import org.qualet.irlredactor.client.diag.VlProfiler;
 import org.qualet.irlredactor.editor.LightEditorScreen;
 import org.qualet.irlredactor.imgui.ImGuiRuntime;
+import org.qualet.irlredactor.imgui.ImGuiInput;
 import org.qualet.irlredactor.patcher.RedactorPatcherHost;
 import org.qualet.irlredactor.light.cookie.CookieArray;
 import org.qualet.irlredactor.light.LightConfig;
@@ -301,7 +301,7 @@ public class IRLRedactorClient implements ClientModInitializer
     /** True if ImGui is up and currently capturing keyboard input. */
     private static boolean imguiWantsKeyboard()
     {
-        return ImGuiRuntime.get().isInitialized() && ImGui.getIO().getWantCaptureKeyboard();
+        return ImGuiInput.wantsKeyboard();
     }
 
     /** Persists the current scene under the joined world's key (no-op if no world). */
